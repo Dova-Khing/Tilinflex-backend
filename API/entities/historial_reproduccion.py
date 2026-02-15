@@ -110,3 +110,13 @@ class HistorialReproduccionBase(BaseModel):
         return v
 class HistorialReproduccionCreate(HistorialReproduccionBase):
     pass
+
+class HistorialReproduccionUpdate(BaseModel):
+    tiempo_visto: Optional[int]
+
+class HistorialReproduccionResponse(HistorialReproduccionBase):
+    id_historial: uuid.UUID
+    fecha_visualizacion: datetime
+
+    class Config:
+        orm_mode = True

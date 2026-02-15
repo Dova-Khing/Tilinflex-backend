@@ -94,3 +94,19 @@ class CategoriaCreate(CategoriaBase):
     Esquema para crear una nueva categoría
     """
     pass
+class CategoriaUpdate(BaseModel):
+    nombre_categoria: Optional[str] = Field(
+        None,
+        example="Drama"
+    )
+class CategoriaResponse(CategoriaBase):
+    id_categoria: uuid.UUID = Field(
+        ...,
+        example=str(uuid.uuid4())
+    )
+
+    fecha_registro: datetime
+    fecha_actualizacion: datetime
+
+    class Config:
+        orm_mode = True
