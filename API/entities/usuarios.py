@@ -55,7 +55,7 @@ activo: bool = Column(Boolean, default=True)
 pefil = relationship(
     "Perfil", back_populates="usuario", uselist=False)
 
-suscripcion = relationship(
+suscripciones = relationship(
     "Suscripcion", back_populates="usuarios")
 
 
