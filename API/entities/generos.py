@@ -93,3 +93,13 @@ class GeneroBase(BaseModel):
             return v.title()
 class GeneroCreate(GeneroBase):
     pass
+class GeneroUpdate(BaseModel):
+    nombre_genero: Optional[str]
+
+class GeneroResponse(GeneroBase):
+    id_genero: uuid.UUID
+    fecha_registro: datetime
+    fecha_actualizacion: datetime
+
+    class Config:
+        orm_mode = True

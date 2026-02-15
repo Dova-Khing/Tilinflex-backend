@@ -113,3 +113,13 @@ class DetalleSuscripcionBase(BaseModel):
         return v
 class DetalleSuscripcionCreate(DetalleSuscripcionBase):
     pass
+class DetalleSuscripcionUpdate(BaseModel):
+    valor: Optional[float]
+    metodo_pago: Optional[str]
+
+class DetalleSuscripcionResponse(DetalleSuscripcionBase):
+    id_detalle_suscripcion: uuid.UUID
+    fecha_suscripcion: datetime
+
+    class Config:
+        orm_mode = True

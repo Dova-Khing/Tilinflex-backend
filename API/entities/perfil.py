@@ -130,3 +130,15 @@ class PerfilBase(BaseModel):
         return v
 class PerfilCreate(PerfilBase):
     pass
+
+class PerfilUpdate(BaseModel):
+    nombre_usuario: Optional[str]
+    idioma: Optional[str]
+    es_infantil: Optional[bool]
+
+class PerfilResponse(PerfilBase):
+    id_perfil: uuid.UUID
+    fecha_creacion: datetime
+
+    class Config:
+        orm_mode = True

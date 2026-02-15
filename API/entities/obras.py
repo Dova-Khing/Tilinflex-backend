@@ -124,3 +124,16 @@ class ObraBase(BaseModel):
         return v
 class ObraCreate(ObraBase):
     pass
+
+class ObraUpdate(BaseModel):
+    nombre: Optional[str]
+    descripcion: Optional[str]
+    episodios: Optional[int]
+    anio: Optional[int]
+
+class ObraResponse(ObraBase):
+    id_obra: uuid.UUID
+    fecha_registro: datetime
+
+    class Config:
+        orm_mode = True
