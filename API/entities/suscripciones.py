@@ -4,7 +4,6 @@ MODELO DE DATOS PARA LA ENTIDAD SUSCRIPCIONES
 """
 
 
-
 from sqlalchemy import Column, Integer, String, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, EmailStr, Field, validator
