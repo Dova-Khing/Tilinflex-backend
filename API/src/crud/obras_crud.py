@@ -11,30 +11,30 @@ class ObraCRUD:
     def __init__(self, db: Session):
         self.db = db
 
-        def crear_obra(
-            self,
-            nombre: str,
-            descripcion: Optional[str],
-            episodios: int,
-            anio: int,
-            id_categoria: UUID,
-            id_genero: UUID,
-        ) -> Obra:
-            """Crear una nueva obra"""
-            nueva_obra = Obra(
-                nombre=nombre,
-                descripcion=descripcion,
-                episodios=episodios,
-                anio=anio,
-                id_categoria=id_categoria,
-                id_genero=id_genero,
-            )
+    def crear_obra(
+        self,
+        nombre: str,
+        descripcion: Optional[str],
+        episodios: int,
+        anio: int,
+        id_categoria: UUID,
+        id_genero: UUID,
+    ) -> Obra:
+        """Crear una nueva obra"""
+        nueva_obra = Obra(
+            nombre=nombre,
+            descripcion=descripcion,
+            episodios=episodios,
+            anio=anio,
+            id_categoria=id_categoria,
+            id_genero=id_genero,
+        )
 
-            self.db.add(nueva_obra)
-            self.db.commit()
-            self.db.refresh(nueva_obra)
+        self.db.add(nueva_obra)
+        self.db.commit()
+        self.db.refresh(nueva_obra)
 
-            return nueva_obra
+        return nueva_obra
 
     def obtener_obra_por_id(self, obra_id: UUID) -> Optional[Obra]:
         """Obtener una obra por ID"""
