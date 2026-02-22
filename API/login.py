@@ -4,9 +4,9 @@ API REST con FastAPI - Sin interfaz de consola
 """
 
 import uvicorn
-#from apis import auth, usuario, historial_reproduccion, genero, suscripcion, perfil, categoria, obra
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+#from endpoints import auth, usuario, historial_reproduccion, genero, suscripcion, perfil, categoria, obra, detalle_suscripcion
 
 app = FastAPI(
     title="Sistema de Gestión de una plataforma de streaming",
@@ -32,6 +32,7 @@ app.include_router(usuario.router)
 app.include_router(historial_reproduccion.router)
 app.include_router(genero.router)
 app.include_router(suscripcion.router)
+app.include_router(detalle_suscripcion.router)
 app.include_router(perfil.router)
 app.include_router(categoria.router)
 app.include_router(obra.router)
@@ -61,6 +62,7 @@ async def root():
             "historial_reproduccion": "/historial",
             "generos": "/generos",
             "suscripciones": "/suscripciones",
+            "detalle_suscripcion": "/detalle_suscripcion",
             "perfiles": "/perfiles",
             "categorias": "/categorias",
             "obras": "/obras",
