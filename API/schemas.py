@@ -94,7 +94,7 @@ class suscripcionResponse(SuscripcionBase):
 
 class SuscripcionCreate(SuscripcionBase):
     creado_por: str
-    
+
 #Modelos base para Detalle Suscripcion
 
 class DetalleSuscripcionBase(BaseModel):
@@ -113,38 +113,18 @@ class DetalleSuscripcionResponse(DetalleSuscripcionBase):
         from_attributes = True
 
 #Modelos base para Categoria
-
-class CategoriaBase(BaseModel):
+class CategoriaResponse(BaseModel):
+    id_categoria: UUID
     nombre_categoria: str
-    fecha_registro: datetime
-    fecha_actualizacion: Optional[datetime] = None
-
-class CategoriaUpdate(BaseModel):
-    nombre_categoria: Optional[str] = None
-
-class CategoriaResponse(CategoriaBase):
-    id: UUID
-    fecha_registro: datetime
-    fecha_actualizacion: Optional[datetime] = None
 
     class Config:
         from_attributes = True
 
 
 # Modelos base para generos
-class GeneroBase(BaseModel):
-    nombre: str
-    fecha_registro: datetime
-    fecha_actualizacion: Optional[datetime] = None
-
-
-class GeneroUpdate(BaseModel):
-    nombre_genero: Optional[str] = None
-
-class GeneroResponse(GeneroBase):
-    id: UUID
-    fecha_registro: datetime
-    fecha_actualizacion: Optional[datetime] = None
+class GeneroResponse(BaseModel):
+    id_genero: UUID
+    nombre_genero: str
 
     class Config:
         from_attributes = True
