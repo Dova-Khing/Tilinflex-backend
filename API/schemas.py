@@ -30,7 +30,6 @@ class UsuarioUpdate(BaseModel):
     telefono: Optional[str] = None
 
 
-
 class UsuarioResponse(UsuarioBase):
     id_usuario: UUID
     id_suscripcion: Optional[UUID] = None
@@ -84,115 +83,124 @@ class PerfilResponse(PerfilBase):
 
 # Modelos base para suscripciones
 
-class suscripcionBase(BaseModel):
+class SuscripcionBase(BaseModel):
     tipo: str
     costo: float
     duracion_dias: int
 
+class suscripcionResponse(SuscripcionBase):
+    id_suscripcion: UUID
+    id_detalle_suscripcion: Optional[UUID] = None
 
-
-class suscripcionCreate(suscripcionBase):
+class SuscripcionCreate(SuscripcionBase):
     creado_por: str
+    
+#Modelos base para Detalle Suscripcion
 
+class DetalleSuscripcionBase(BaseModel):
+    valor: int
+    metodo_pago: str
+    fecha_suscripcion: datetime
 
-class PartidaUpdate(BaseModel):
-    costo_apuesta: Optional[float] = None
-    estado: Optional[str] = None
-    usuario_id: Optional[UUID] = None
-    juego_id: Optional[UUID] = None
-    premio_id: Optional[UUID] = None
+class DetalleSuscripcionCreate(DetalleSuscripcionBase):
+    id_suscripcion: UUID
 
-
-class PartidaResponse(PartidaBase):
-    id: UUID
-    usuario_id: UUID
-    juego_id: UUID
-    premio_id: Optional[UUID] = None
-    fecha: datetime
+class DetalleSuscripcionResponse(DetalleSuscripcionBase):
+    id_detalle_suscripcion: UUID
+    id_suscripcion: UUID
 
     class Config:
         from_attributes = True
 
+#Modelos base para Categoria
 
-# Modelos base para Juego
-class JuegoBase(BaseModel):
-    nombre: str
-    descripcion: Optional[str] = None
-    costo_base: float
+class CategoriaBase(BaseModel):
+    nombre_categoria: str
+    fecha_registro: datetime
+    fecha_actualizacion: Optional[datetime] = None
 
+class CategoriaUpdate(BaseModel):
+    nombre_categoria: Optional[str] = None
 
-class JuegoCreate(JuegoBase):
-    creado_por: str
-
-
-class JuegoUpdate(BaseModel):
-    nombre: Optional[str] = None
-    descripcion: Optional[str] = None
-    costo_base: Optional[float] = None
-    creado_por: Optional[str] = None
-    actualizado_por: Optional[str] = None
-
-
-class JuegoResponse(JuegoBase):
+class CategoriaResponse(CategoriaBase):
     id: UUID
     fecha_registro: datetime
-    fecha_actualizacion: datetime
-    creado_por: str
-    actualizado_por: Optional[str] = None
+    fecha_actualizacion: Optional[datetime] = None
 
     class Config:
         from_attributes = True
 
 
-# Modelos base para HistorialSaldo
-class HistorialSaldoBase(BaseModel):
-    tipo: str  # recarga, apuesta, premio
-    monto: float
+# Modelos base para generos
+class GeneroBase(BaseModel):
+    nombre: str
+    fecha_registro: datetime
+    fecha_actualizacion: Optional[datetime] = None
 
 
-class HistorialSaldoCreate(HistorialSaldoBase):
-    usuario_id: UUID
+class GeneroUpdate(BaseModel):
+    nombre_genero: Optional[str] = None
 
-
-class HistorialSaldoUpdate(BaseModel):
-    tipo: Optional[str] = None
-    monto: Optional[float] = None
-    usuario_id: Optional[UUID] = None
-
-
-class HistorialSaldoResponse(HistorialSaldoBase):
+class GeneroResponse(GeneroBase):
     id: UUID
-    usuario_id: UUID
+    fecha_registro: datetime
+    fecha_actualizacion: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+# Modelos base para HistorialReproduccion
+class HistorialReproduccionBase(BaseModel):
+    tiempo_visto: int
+    fecha: datetime
+
+
+class HistorialReproduccionCreate(HistorialReproduccionBase):
+    id_perfil: UUID
+
+
+class HistorialReproduccionUpdate(BaseModel):
+    tiempo_visto: Optional[int] = None
+    id_perfil: Optional[UUID] = None
+
+
+class HistorialReproduccionResponse(HistorialReproduccionBase):
+    id: UUID
+    id_perfil: UUID
     fecha: datetime
 
     class Config:
         from_attributes = True
 
 
-# Modelos base para Boleto
-class BoletoBase(BaseModel):
-    numeros: str
-    costo: float
+# Modelos base para Obras
+class ObraBase(BaseModel):
+    nombre: str
+    descripcion: Optional[str] = None
+    episodios: Optional[int] = None
+    año: Optional[int] = None
+    fecha_registro: datetime
+    fecha_actualizacion: Optional[datetime] = None
 
 
-class BoletoCreate(BoletoBase):
-    usuario_id: UUID
-    juego_id: UUID
-    creado_por: str
+class ObraCreate(ObraBase):
+    id_categoria: UUID
+    id_genero: UUID
 
 
-class BoletoUpdate(BaseModel):
-    numeros: Optional[str] = None
-    costo: Optional[float] = None
-    usuario_id: Optional[UUID] = None
-    juego_id: Optional[UUID] = None
-    actualizado_por: Optional[str] = None
+class ObrasUpdate(BaseModel):
+    nombre: Optional[str] = None
+    descripcion: Optional[str] = None
+    episodios: Optional[int] = None
+    año: Optional[int] = None
+    id_categoria: Optional[UUID] = None
+    id_genero: Optional[UUID] = None
 
 
-class BoletoResponse(BoletoBase):
+class ObraResponse(ObraBase):
     id: UUID
-    usuario_id: UUID
-    juego_id: UUID
+    id_categoria: UUID
+    id_genero: UUID
     fecha_registro: datetime
     fecha_actualizacion: Optional[datetime] = None
     creado_por: str
@@ -203,50 +211,41 @@ class BoletoResponse(BoletoBase):
 
 
 # Modelos de respuesta con relaciones
-class UsuarioConPartidas(UsuarioResponse):
-    partidas: list[PartidaResponse] = []
+class UsuarioConSuscripcion(UsuarioResponse):
+    suscripcion: Optional[SuscripcionCreate] = None
 
+class UsuarioConPerfil(UsuarioResponse):
+    perfil: Optional[PerfilResponse] = None
 
-class UsuarioConBoletos(UsuarioResponse):
-    boletos: list[BoletoResponse] = []
+class SuscripcionConDetalle(suscripcionResponse):
+    detalle_suscripcion: Optional[DetalleSuscripcionResponse] = None
 
+class suscripcionConUsuario(suscripcionResponse):
+    usuario: Optional[UsuarioResponse] = None
 
-class UsuarioConHistorialSaldo(UsuarioResponse):
-    historial_saldo: list[HistorialSaldoResponse] = []
+class detalleConSuscripcion(DetalleSuscripcionResponse):
+    suscripcion: Optional[suscripcionResponse] = None
 
+class categoriaConObras(CategoriaResponse):
+    obras: Optional[list[ObraResponse]] = None
 
-class PremioConJuego(PremioResponse):
-    juego: JuegoResponse
+class generoConObras(GeneroResponse):
+    obras: Optional[list[ObraResponse]] = None
 
+class ObrasConCategoria(ObraResponse):
+    categoria: Optional[CategoriaResponse] = None
 
-class PartidaConUsuario(PartidaResponse):
-    usuario: UsuarioResponse
+class ObrasConGenero(ObraResponse):
+    genero: Optional[GeneroResponse] = None
 
+class perfilConUsuario(PerfilResponse):
+    usuario: Optional[UsuarioResponse] = None
 
-class PartidaConJuego(PartidaResponse):
-    juego: JuegoResponse
+class perfilConHistorial(PerfilResponse):
+    historial: Optional[list[HistorialReproduccionResponse]] = None
 
-
-class JuegoConPartidas(JuegoResponse):
-    partidas: list[PartidaResponse] = []
-
-
-class JuegoConBoletos(JuegoResponse):
-    boletos: list[BoletoResponse] = []
-
-
-class HistorialSaldoConUsuario(HistorialSaldoResponse):
-    usuario: UsuarioResponse
-
-
-# Boleto con relaciones
-class BoletoConUsuario(BoletoResponse):
-    usuario: UsuarioResponse
-
-
-class BoletoConJuego(BoletoResponse):
-    juego: JuegoResponse
-
+class historialConPerfil(HistorialReproduccionResponse):
+    perfil: Optional[PerfilResponse] = None
 
 # Modelos de respuesta para la API
 class RespuestaAPI(BaseModel):
