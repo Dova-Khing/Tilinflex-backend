@@ -1,7 +1,7 @@
 "CRUD PARA detalle_suscripcion"
 
 from sqlalchemy.orm import Session
-from entities.detalle_suscripcion import DetalleSuscripcion
+from API.src.entities.detalle_suscripcion import DetalleSuscripcion
 from typing import List, Optional
 from uuid import UUID
 

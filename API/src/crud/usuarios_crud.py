@@ -17,7 +17,7 @@ from sqlalchemy import UUID
 import pycountry
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from entities.usuarios import Usuario
+from API.src.entities.usuarios import Usuario
 import API.auth.security as PasswordManager
 
 

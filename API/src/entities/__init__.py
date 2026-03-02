@@ -1,7 +1,7 @@
 from .usuarios import Usuario, UsuarioCreate, UsuarioUpdate, UsuarioResponse
 from .suscripciones import Suscripcion, SuscripcionCreate, SuscripcionUpdate, SuscripcionResponse
-from .obras import Obra, ObraCreate, ObraUpdate, ObraResponse
-from .categoria import Categoria, CategoriaCreate, CategoriaUpdate, CategoriaResponse
+from .obras import Obra, ObraResponse
+from .categoria import Categoria, CategoriaResponse
 from .detalle_suscripcion import DetalleSuscripcion, DetalleSuscripcionCreate, DetalleSuscripcionUpdate, DetalleSuscripcionResponse
 from .perfil import Perfil, PerfilCreate, PerfilUpdate, PerfilResponse
 from .generos import Genero, GeneroCreate, GeneroUpdate, GeneroResponse
@@ -12,7 +12,7 @@ __all__ = [
     "Usuario", "UsuarioCreate", "UsuarioUpdate", "UsuarioResponse",
     "Suscripcion", "SuscripcionCreate", "SuscripcionUpdate", "SuscripcionResponse",
     "Obra", "ObraCreate", "ObraUpdate", "ObraResponse",
-    "Categoria", "CategoriaCreate", "CategoriaUpdate", "CategoriaResponse",
+    "Categoria", "CategoriaResponse",
     "DetalleSuscripcion", "DetalleSuscripcionCreate", "DetalleSuscripcionUpdate", "DetalleSuscripcionResponse",
     "Perfil", "PerfilCreate", "PerfilUpdate", "PerfilResponse",
     "Genero", "GeneroCreate", "GeneroUpdate", "GeneroResponse",
