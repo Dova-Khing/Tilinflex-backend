@@ -4,7 +4,7 @@ from .obras import Obra, ObraResponse
 from .categoria import Categoria, CategoriaResponse
 from .detalle_suscripcion import DetalleSuscripcion, DetalleSuscripcionCreate, DetalleSuscripcionUpdate, DetalleSuscripcionResponse
 from .perfil import Perfil, PerfilCreate, PerfilUpdate, PerfilResponse
-from .generos import Genero, GeneroCreate, GeneroUpdate, GeneroResponse
+from .generos import Genero, GeneroResponse
 from .historial_reproduccion import HistorialReproduccion, HistorialReproduccionCreate, HistorialReproduccionUpdate, HistorialReproduccionResponse
 
 
