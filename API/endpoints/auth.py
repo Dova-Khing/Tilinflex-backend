@@ -11,8 +11,7 @@ from ..src.entities.usuarios import Usuario
 from fastapi import APIRouter, Depends, HTTPException, status
 from schemas import RespuestaAPI, UsuarioLogin, UsuarioResponse, UsuarioCreate
 from sqlalchemy.orm import Session
-from auth.security import TokenManager, PasswordManager
-import re
+from auth.security import TokenManager
 
 router = APIRouter(prefix="/auth", tags=["autenticación"])
 
@@ -86,13 +85,11 @@ async def login(login_data: UsuarioLogin, db: Session = Depends(get_db)):
             user={
                 "id": str(usuario.id),
                 "nombre": usuario.nombre,
-                "nombre_usuario": usuario.nombre_usuario,
+                "apellido": usuario.apellido,
                 "email": usuario.email,
                 "es_admin": usuario.es_admin,
                 "edad": usuario.edad,
-                "saldo_inicial": (
-                    float(usuario.saldo_inicial) if usuario.saldo_inicial else 0.0
-                ),
+                "pais": usuario.pais,
             },
         )
 
@@ -127,12 +124,12 @@ async def registrar_usuario(usuario_data: UsuarioCreate, db: Session = Depends(g
 
         usuario = usuario_crud.crear_usuario(
             nombre=usuario_data.nombre,
-            nombre_usuario=usuario_data.nombre_usuario,
+            apellido=usuario_data.apellido,
             email=usuario_data.email,
             contrasena=usuario_data.contrasena,
             telefono=usuario_data.telefono,
             edad=usuario_data.edad,
-            saldo_inicial=usuario_data.saldo_inicial,
+            pais=usuario_data.pais,
             es_admin=False,
         )
 
@@ -162,7 +159,6 @@ async def registrar_usuario(usuario_data: UsuarioCreate, db: Session = Depends(g
     try:
         print(f"Registro de usuario recibido:")
         print(f"Nombre: {usuario_data.nombre}")
-        print(f"Usuario: {usuario_data.nombre_usuario}")
         print(f"Email: {usuario_data.email}")
 
         usuario_crud = UsuarioCRUD(db)
@@ -170,12 +166,12 @@ async def registrar_usuario(usuario_data: UsuarioCreate, db: Session = Depends(g
         # Crear el usuario (el CRUD ya tiene todas las validaciones)
         usuario = usuario_crud.crear_usuario(
             nombre=usuario_data.nombre,
-            nombre_usuario=usuario_data.nombre_usuario,
+            apellido=usuario_data.apellido,
             email=usuario_data.email,
             contrasena=usuario_data.contrasena,
             telefono=usuario_data.telefono,
             edad=usuario_data.edad,
-            saldo_inicial=usuario_data.saldo_inicial,
+            pais=usuario_data.pais,
             es_admin=False,  # Por defecto no es admin
         )
 
@@ -216,11 +212,11 @@ async def crear_usuario_admin(db: Session = Depends(get_db)):
 
         admin = usuario_crud.crear_usuario(
             nombre="Administrador del Sistema",
-            nombre_usuario="admin",
+            apellido="",
             email="admin@system.com",
             contrasena=contrasena_admin,
             edad="99",
-            saldo_inicial=0,
+            pais="N/A",
             es_admin=True,
         )
 
@@ -259,9 +255,10 @@ async def verificar_usuario(usuario_id: UUID, db: Session = Depends(get_db)):
             datos={
                 "usuario_id": str(usuario.id),
                 "nombre": usuario.nombre,
+                "apellido": usuario.apellido,
                 "email": usuario.email,
                 "edad": usuario.edad,
-                "saldo_inicial": usuario.saldo_inicial,
+                "pais": usuario.pais,
                 "activo": usuario.activo,
                 "es_admin": usuario.es_admin,
             },
@@ -281,7 +278,7 @@ async def estado_autenticacion():
         mensaje="Sistema de autenticación funcionando correctamente",
         exito=True,
         datos={
-            "sistema": "Sistema de Gestión de Juegos y Apuestas",
+            "sistema": "Sistema de gestión de una plataforma de streaming ",
             "version": "1.0.0",
             "autenticacion": "Activa",
         },
@@ -298,8 +295,9 @@ async def debug_usuarios(db: Session = Depends(get_db)):
             {
                 "id": str(u.id),
                 "nombre": u.nombre,
-                "nombre_usuario": u.nombre_usuario,
+                "apellido": u.apellido,
                 "email": u.email,
+                "pais": u.pais,
                 "activo": u.activo,
                 "es_admin": u.es_admin,
             }
