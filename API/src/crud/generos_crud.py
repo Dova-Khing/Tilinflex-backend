@@ -4,7 +4,7 @@ El género se asigna a las obras para clasificarlas y facilitar su búsqueda.
 """
 
 from sqlalchemy.orm import Session
-from entities.generos import Genero
+from API.src.entities.generos import Genero
 from typing import List, Optional
 from uuid import UUID
 

@@ -1,7 +1,7 @@
 "CRUD PARA OBRAS"
 
 from sqlalchemy.orm import Session
-from entities.obras import Obra
+from API.src.entities.obras import Obra
 from typing import List, Optional
 from uuid import UUID
 

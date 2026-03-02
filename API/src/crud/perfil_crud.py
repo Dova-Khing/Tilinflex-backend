@@ -5,7 +5,7 @@ Un perfil representa la información de un usuario en el sistema.
 
 import re
 from sqlalchemy.orm import Session
-from entities.perfil import Perfil
+from API.src.entities.perfil import Perfil
 from uuid import UUID
 from typing import List, Optional
 from .usuarios_crud import UsuariosCRUD
