@@ -177,6 +177,10 @@ class UsuarioCRUD:
             .first()
         )
 
+    def obtener_todos_usuarios(self) -> List[Usuario]:
+        """Obtener todos los usuarios"""
+        return self.db.query(Usuario).all()
+
 
     def autenticar_usuario(self, email: str, contrasena_hash: str) -> Optional[Usuario]:
         """Autenticar un usuario por email y contraseña"""
