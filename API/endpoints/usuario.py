@@ -1,7 +1,6 @@
 """
 API de Usuarios - Endpoints para gestión de usuarios
 
-TOCA MODIFICARLO, ESTA VERSION NO FUNCIONA
 """
 
 from typing import List
@@ -149,12 +148,12 @@ async def crear_usuario(usuario_data: UsuarioCreate, db: Session = Depends(get_d
     Parámetros (body):
         usuario_data (UsuarioCreate): Datos necesarios para crear un usuario:
             - nombre (str)
-            - nombre_usuario (str)
+            - apellido (str)
             - email (str)
             - contraseña (str)
             - telefono (str)
             - edad (int)
-            - saldo_inicial (float)
+            - pais (str)
             - es_admin (bool)
 
         db (Session): Sesión de base de datos.
@@ -167,12 +166,12 @@ async def crear_usuario(usuario_data: UsuarioCreate, db: Session = Depends(get_d
         usuario_crud = UsuarioCRUD(db)
         usuario = usuario_crud.crear_usuario(
             nombre=usuario_data.nombre,
-            nombre_usuario=usuario_data.nombre_usuario,
+            apellido=usuario_data.apellido,
             email=usuario_data.email,
             contrasena=usuario_data.contrasena,
             telefono=usuario_data.telefono,
             edad=usuario_data.edad,
-            saldo_inicial=usuario_data.saldo_inicial,
+            pais=usuario_data.pais,
             es_admin=usuario_data.es_admin,
         )
         return usuario

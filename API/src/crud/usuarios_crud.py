@@ -149,7 +149,6 @@ class UsuarioCRUD:
             admin=usuario.admin,
             pais=usuario.pais,
             edad=usuario.edad,
-            admin=usuario.admin
         )
 
         self.db.add(nuevo_usuario)
