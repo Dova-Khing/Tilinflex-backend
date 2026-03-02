@@ -1,6 +1,7 @@
 """
 API de Autenticación - Endpoints para gestión de la seguridad
 
+TOCA MODIFICARLO, NO ADECUADO PARA EL PROYECTO.
 """
 
 from uuid import UUID
