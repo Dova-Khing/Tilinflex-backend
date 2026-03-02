@@ -11,8 +11,6 @@ con la base de datos y Pydantic
 para validar los datos de entrada y salida.
 """
 
-
-
 import re
 from uuid import UUID
 from sqlalchemy import UUID
@@ -20,7 +18,7 @@ import pycountry
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from entities.usuarios import Usuario
-
+import API.auth.security as PasswordManager
 
 
 class validaciones_usuario:
@@ -29,13 +27,17 @@ class validaciones_usuario:
     Contiene métodos estáticos para validar el formato del email,
     el país y la edad."""
 
-
     def validar_usuario(usuario: Usuario) -> bool:
         """
         Valida los datos del usuario.
         Retorna True si los datos son válidos, de lo contrario False.
         """
-        if not usuario.nombre or not usuario.apellido or not usuario.email or not usuario.pais:
+        if (
+            not usuario.nombre
+            or not usuario.apellido
+            or not usuario.email
+            or not usuario.pais
+        ):
             print("Error: El nombre, apellido, email y país son campos obligatorios.")
             return False
         return True
@@ -48,7 +50,6 @@ class validaciones_usuario:
         pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
         return re.match(pattern, email) is not None
 
-
     def validar_pais(pais: str) -> bool:
         """
         Valida que el país sea uno de los permitidos.
@@ -56,9 +57,28 @@ class validaciones_usuario:
         """
         # Códigos de países permitidos: América Latina, Estados Unidos y España
         paises_permitidos = [
-            "AR", "BO", "BR", "CL", "CO", "CR", "CU", "EC", "SV", "GT",
-            "GY", "HN", "NI", "PA", "PY", "PE", "DO", "SR", "UY", "VE",
-            "US", "ES"
+            "AR",
+            "BO",
+            "BR",
+            "CL",
+            "CO",
+            "CR",
+            "CU",
+            "EC",
+            "SV",
+            "GT",
+            "GY",
+            "HN",
+            "NI",
+            "PA",
+            "PY",
+            "PE",
+            "DO",
+            "SR",
+            "UY",
+            "VE",
+            "US",
+            "ES",
         ]
 
         try:
@@ -78,13 +98,13 @@ class validaciones_usuario:
         Retorna True si la edad es válida, de lo contrario False.
         """
         try:
-          if not isinstance(edad, int):
-               print("Error: La edad debe ser un número entero.")
-               return False
-          if edad < 18:
+            if not isinstance(edad, int):
+                print("Error: La edad debe ser un número entero.")
+                return False
+            if edad < 18:
                 print("Error: La edad debe ser mayor o igual a 18 años.")
                 return False
-          return True
+            return True
         except (TypeError, ValueError):
             print("Error: La edad debe ser un número entero y mayor o igual a 18.")
             return False
@@ -99,18 +119,16 @@ class validaciones_usuario:
             print("Error: El nombre y apellido no pueden estar vacíos.")
             return False
         if not re.match(r"^[a-zA-Z\s]+$", nombre):
-            print("Error: El nombre solo puede contener caracteres alfabéticos y espacios.")
+            print(
+                "Error: El nombre solo puede contener caracteres alfabéticos y espacios."
+            )
             return False
         if not re.match(r"^[a-zA-Z\s]+$", apellido):
-            print("Error: El apellido solo puede contener caracteres alfabéticos y espacios.")
+            print(
+                "Error: El apellido solo puede contener caracteres alfabéticos y espacios."
+            )
             return False
         return True
-
-
-
-
-
-
 
 
 class UsuarioCRUD:
@@ -118,9 +136,9 @@ class UsuarioCRUD:
     Clase que contiene métodos para realizar operaciones CRUD
     en la tabla de usuarios de la base de datos.
     """
+
     def __init__(self, db: Session):
         self.db = db
-
 
     def crear_usuario(self, usuario: Usuario) -> Optional[Usuario]:
         """
@@ -133,11 +151,15 @@ class UsuarioCRUD:
             print("Error: El formato del email es inválido.")
             return None
         if not validaciones_usuario.validar_pais(usuario.pais):
-            print("Error: El país no es válido. Debe ser de América Latina, Estados Unidos o España.")
+            print(
+                "Error: El país no es válido. Debe ser de América Latina, Estados Unidos o España."
+            )
             return None
         if not validaciones_usuario.validar_edad(usuario.edad):
             return None
-        if not validaciones_usuario.validar_nombre_apellido(usuario.nombre, usuario.apellido):
+        if not validaciones_usuario.validar_nombre_apellido(
+            usuario.nombre, usuario.apellido
+        ):
             return None
 
         nuevo_usuario = Usuario(
@@ -171,15 +193,12 @@ class UsuarioCRUD:
     def obtener_usuario_por_telefono(self, telefono: str) -> Optional[Usuario]:
         """Obtener un usuario por teléfono"""
         return (
-            self.db.query(Usuario)
-            .filter(Usuario.telefono == telefono.strip())
-            .first()
+            self.db.query(Usuario).filter(Usuario.telefono == telefono.strip()).first()
         )
 
     def obtener_todos_usuarios(self) -> List[Usuario]:
         """Obtener todos los usuarios"""
         return self.db.query(Usuario).all()
-
 
     def autenticar_usuario(self, email: str, contrasena_hash: str) -> Optional[Usuario]:
         """Autenticar un usuario por email y contraseña"""
@@ -197,7 +216,8 @@ class UsuarioCRUD:
             return None
 
     def cambiar_contrasena(
-            self, usuario_id: UUID, contrasena_actual: str, nueva_contrasena_hash: str) -> bool:
+        self, usuario_id: UUID, contrasena_actual: str, nueva_contrasena_hash: str
+    ) -> bool:
         """Cambiar la contraseña de un usuario"""
         usuario = self.obtener_usuario(usuario_id)
         if not usuario:
@@ -205,13 +225,12 @@ class UsuarioCRUD:
             return False
 
         if not PasswordManager.verify_password(
-            contrasena_actual, usuario.contrasena_hash):
+            contrasena_actual, usuario.contrasena_hash
+        ):
 
             raise ValueError("La contraseña actual es incorrecta.")
 
-        es_valida, mensaje = PasswordManager.validar_strength(
-            nueva_contrasena_hash
-            )
+        es_valida, mensaje = PasswordManager.validar_strength(nueva_contrasena_hash)
 
         if not es_valida:
             raise ValueError(f"Nueva contraseña invalida: {mensaje}")
@@ -272,7 +291,6 @@ class UsuarioCRUD:
         self.db.commit()
         self.db.refresh(usuario)
         return usuario
-
 
     def eliminar_usuario(self, usuario_id: UUID) -> bool:
         """Eliminar un usuario por ID"""
