@@ -1,34 +1,37 @@
 """
-API de Suscripción - Endpoints para gestión de suscripciones
-
+API de Suscripcion - Endpoints para gestion de suscripciones.
+Define las rutas HTTP para crear, consultar y actualizar suscripciones
+de los usuarios en la plataforma.
 """
 
 from typing import List
 from uuid import UUID
 
-from ..src.crud.suscripciones_crud import SuscripcionCRUD
-from database.config import get_db
+from API.src.crud.suscripciones_crud import SuscripcionCRUD
+from API.database.config import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
-from schemas import SuscripcionCreate, suscripcionResponse
+from API.schemas import SuscripcionCreate, SuscripcionResponse
 from sqlalchemy.orm import Session
 
 router = APIRouter(prefix="/suscripciones", tags=["Suscripciones"])
 
-@router.get("/", response_model=List[suscripcionResponse])
+
+@router.get("/", response_model=List[SuscripcionResponse])
 async def obtener_todas_suscripciones(
     skip: int = 0, limit: int = 100, db=Depends(get_db)
 ):
     """
-    Obtener una lista de suscripciones
+    Obtener una lista de suscripciones.
 
-    Args: 
-    - **skip**: Número de registros a omitir (paginación)
-    - **limit**: Número máximo de registros a retornar (paginación)
+    Args:
+        skip: Numero de registros a omitir para paginacion.
+        limit: Numero maximo de registros a retornar.
 
     Returns:
-        Retorna una lista de suscripciones.
+        Lista de suscripciones registradas.
+
     Raises:
-        HTTPException(500): Si ocurre un error al obtener las suscripciones.
+        HTTPException 500: Si ocurre un error interno al obtener las suscripciones.
     """
     try:
         crud = SuscripcionCRUD(db=db)
@@ -38,20 +41,22 @@ async def obtener_todas_suscripciones(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al obtener suscripciones: {str(e)}",
         )
-    
-@router.get("/{suscripcion_id}", response_model=suscripcionResponse)
+
+
+@router.get("/{suscripcion_id}", response_model=SuscripcionResponse)
 async def obtener_suscripcion(suscripcion_id: UUID, db: Session = Depends(get_db)):
     """
-    Obtener una suscripción por ID
+    Obtener una suscripcion por ID.
 
     Args:
-    - **suscripcion_id**: ID de la suscripción a obtener
+        suscripcion_id: Identificador unico de la suscripcion.
 
     Returns:
-        Retorna la suscripción correspondiente al ID proporcionado.
+        Suscripcion correspondiente al ID proporcionado.
+
     Raises:
-        HTTPException(404): Si no se encuentra la suscripción con el ID proporcionado.
-        HTTPException(500): Si ocurre un error al obtener la suscripción.
+        HTTPException 404: Si no se encuentra la suscripcion.
+        HTTPException 500: Si ocurre un error interno.
     """
     try:
         crud = SuscripcionCRUD(db=db)
@@ -59,7 +64,7 @@ async def obtener_suscripcion(suscripcion_id: UUID, db: Session = Depends(get_db
         if not suscripcion:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Suscripción no encontrada",
+                detail="Suscripcion no encontrada",
             )
         return suscripcion
     except HTTPException:
@@ -67,21 +72,23 @@ async def obtener_suscripcion(suscripcion_id: UUID, db: Session = Depends(get_db
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener la suscripción: {str(e)}",
+            detail=f"Error al obtener la suscripcion: {str(e)}",
         )
-    
-@router.post("/", response_model=suscripcionResponse, status_code=status.HTTP_201_CREATED)
+
+
+@router.post("/", response_model=SuscripcionResponse, status_code=status.HTTP_201_CREATED)
 async def crear_suscripcion(suscripcion: SuscripcionCreate, db: Session = Depends(get_db)):
     """
-    Crear una nueva suscripción
+    Crear una nueva suscripcion.
 
     Args:
-    - **suscripcion**: Datos de la suscripción a crear
+        suscripcion: Datos de la suscripcion a crear.
 
     Returns:
-        Retorna la suscripción creada.
+        Suscripcion creada.
+
     Raises:
-        HTTPException(500): Si ocurre un error al crear la suscripción.
+        HTTPException 500: Si ocurre un error interno al crear la suscripcion.
     """
     try:
         crud = SuscripcionCRUD(db=db)
@@ -89,39 +96,47 @@ async def crear_suscripcion(suscripcion: SuscripcionCreate, db: Session = Depend
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al crear la suscripción: {str(e)}",
+            detail=f"Error al crear la suscripcion: {str(e)}",
         )
-    
-@router.put("/{suscripcion_id}", response_model=suscripcionResponse)
-async def actualizar_suscripcion(suscripcion_id: UUID, suscripcion: SuscripcionCreate, db: Session = Depends(get_db)):
+
+
+@router.put("/{suscripcion_id}", response_model=SuscripcionResponse)
+async def actualizar_suscripcion(
+    suscripcion_id: UUID,
+    suscripcion: SuscripcionCreate,
+    db: Session = Depends(get_db)
+):
     """
-    Actualizar una suscripción existente
+    Actualizar una suscripcion existente.
 
     Args:
-    - **suscripcion_id**: ID de la suscripción a actualizar
-    - **suscripcion**: Datos de la suscripción a actualizar
+        suscripcion_id: Identificador unico de la suscripcion a actualizar.
+        suscripcion: Datos nuevos de la suscripcion.
 
     Returns:
-        Retorna la suscripción actualizada.
+        Suscripcion actualizada.
+
     Raises:
-        HTTPException(404): Si no se encuentra la suscripción con el ID proporcionado.
-        HTTPException(500): Si ocurre un error al actualizar la suscripción.
+        HTTPException 404: Si no se encuentra la suscripcion.
+        HTTPException 500: Si ocurre un error interno al actualizar la suscripcion.
     """
     try:
         crud = SuscripcionCRUD(db=db)
         suscripcion_existente = crud.obtener_suscripcion(suscripcion_id)
-        
+
         if not suscripcion_existente:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Suscripción no encontrada",
+                detail="Suscripcion no encontrada",
             )
-        
+
         campos = {k: v for k, v in suscripcion.dict().items() if v is not None}
         return crud.actualizar_suscripcion(suscripcion_id, campos)
-    
+
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al actualizar la suscripción: {str(e)}",
+            detail=f"Error al actualizar la suscripcion: {str(e)}",
         )

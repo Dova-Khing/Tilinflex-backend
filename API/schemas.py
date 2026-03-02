@@ -1,5 +1,7 @@
 """
-Modelos Pydantic para las respuestas de la API
+Modelos Pydantic para las respuestas y requests de la API.
+Define los esquemas de validacion y serializacion para cada entidad
+de la plataforma de streaming.
 """
 
 from datetime import datetime
@@ -8,7 +10,10 @@ from uuid import UUID
 from pydantic import BaseModel, EmailStr
 
 
-# Modelos base para Usuario
+# ------------------------------------
+# USUARIO
+# ------------------------------------
+
 class UsuarioBase(BaseModel):
     nombre: str
     apellido: str
@@ -18,6 +23,7 @@ class UsuarioBase(BaseModel):
     pais: Optional[str] = None
     admin: Optional[bool] = False
     activo: Optional[bool] = True
+
 
 class UsuarioCreate(UsuarioBase):
     contrasena: str
@@ -33,16 +39,15 @@ class UsuarioUpdate(BaseModel):
 class UsuarioResponse(UsuarioBase):
     id_usuario: UUID
     id_suscripcion: Optional[UUID] = None
-    fecha_registro: datetime
-    fecha_actualizacion: datetime
-
+    fecha_registro: Optional[datetime] = None
+    fecha_actualizacion: Optional[datetime] = None
 
     class Config:
         from_attributes = True
 
 
 class UsuarioLogin(BaseModel):
-    nombre_usuario: str
+    email: str
     contrasena: str
 
 
@@ -51,13 +56,16 @@ class CambioContrasena(BaseModel):
     contrasena_nueva: str
 
 
+# ------------------------------------
+# PERFIL
+# ------------------------------------
 
-# Modelos base para perfil
 class PerfilBase(BaseModel):
     avatar_url: Optional[str] = None
     fecha_nacimiento: Optional[datetime] = None
     genero: Optional[str] = None
     intereses: Optional[str] = None
+
 
 class PerfilCreate(PerfilBase):
     usuario_id: UUID
@@ -72,38 +80,55 @@ class PerfilUpdate(BaseModel):
 
 
 class PerfilResponse(PerfilBase):
-    id: UUID
+    id_perfil: UUID
     usuario_id: UUID
-    fecha_registro: datetime
+    fecha_registro: Optional[datetime] = None
     fecha_actualizacion: Optional[datetime] = None
 
     class Config:
         from_attributes = True
 
 
-# Modelos base para suscripciones
+# ------------------------------------
+# SUSCRIPCION
+# ------------------------------------
 
 class SuscripcionBase(BaseModel):
-    tipo: str
-    costo: float
-    duracion_dias: int
-
-class suscripcionResponse(SuscripcionBase):
-    id_suscripcion: UUID
+    tipo_suscripcion: str
+    fecha_inicio: Optional[datetime] = None
+    fecha_fin: Optional[datetime] = None
     id_detalle_suscripcion: Optional[UUID] = None
 
-class SuscripcionCreate(SuscripcionBase):
-    creado_por: str
 
-#Modelos base para Detalle Suscripcion
+class SuscripcionCreate(SuscripcionBase):
+    pass
+
+
+class SuscripcionUpdate(BaseModel):
+    tipo_suscripcion: Optional[str] = None
+    fecha_fin: Optional[datetime] = None
+
+
+class SuscripcionResponse(SuscripcionBase):
+    id_suscripcion: UUID
+
+    class Config:
+        from_attributes = True
+
+
+# ------------------------------------
+# DETALLE SUSCRIPCION
+# ------------------------------------
 
 class DetalleSuscripcionBase(BaseModel):
     valor: int
     metodo_pago: str
     fecha_suscripcion: datetime
 
+
 class DetalleSuscripcionCreate(DetalleSuscripcionBase):
     id_suscripcion: UUID
+
 
 class DetalleSuscripcionResponse(DetalleSuscripcionBase):
     id_detalle_suscripcion: UUID
@@ -112,7 +137,11 @@ class DetalleSuscripcionResponse(DetalleSuscripcionBase):
     class Config:
         from_attributes = True
 
-#Modelos base para Categoria
+
+# ------------------------------------
+# CATEGORIA
+# ------------------------------------
+
 class CategoriaResponse(BaseModel):
     id_categoria: UUID
     nombre_categoria: str
@@ -121,7 +150,10 @@ class CategoriaResponse(BaseModel):
         from_attributes = True
 
 
-# Modelos base para generos
+# ------------------------------------
+# GENERO
+# ------------------------------------
+
 class GeneroResponse(BaseModel):
     id_genero: UUID
     nombre_genero: str
@@ -129,7 +161,11 @@ class GeneroResponse(BaseModel):
     class Config:
         from_attributes = True
 
-# Modelos base para HistorialReproduccion
+
+# ------------------------------------
+# HISTORIAL REPRODUCCION
+# ------------------------------------
+
 class HistorialReproduccionBase(BaseModel):
     tiempo_visto: int
     fecha: datetime
@@ -145,22 +181,22 @@ class HistorialReproduccionUpdate(BaseModel):
 
 
 class HistorialReproduccionResponse(HistorialReproduccionBase):
-    id: UUID
+    id_historial: UUID
     id_perfil: UUID
-    fecha: datetime
 
     class Config:
         from_attributes = True
 
 
-# Modelos base para Obras
+# ------------------------------------
+# OBRAS
+# ------------------------------------
+
 class ObraBase(BaseModel):
     nombre: str
     descripcion: Optional[str] = None
     episodios: Optional[int] = None
-    año: Optional[int] = None
-    fecha_registro: datetime
-    fecha_actualizacion: Optional[datetime] = None
+    anio: Optional[int] = None
 
 
 class ObraCreate(ObraBase):
@@ -168,66 +204,82 @@ class ObraCreate(ObraBase):
     id_genero: UUID
 
 
-class ObrasUpdate(BaseModel):
+class ObraUpdate(BaseModel):
     nombre: Optional[str] = None
     descripcion: Optional[str] = None
     episodios: Optional[int] = None
-    año: Optional[int] = None
+    anio: Optional[int] = None
     id_categoria: Optional[UUID] = None
     id_genero: Optional[UUID] = None
 
 
 class ObraResponse(ObraBase):
-    id: UUID
+    id_obra: UUID
     id_categoria: UUID
     id_genero: UUID
-    fecha_registro: datetime
+    fecha_registro: Optional[datetime] = None
     fecha_actualizacion: Optional[datetime] = None
-    creado_por: str
-    actualizado_por: Optional[str] = None
 
     class Config:
         from_attributes = True
 
 
-# Modelos de respuesta con relaciones
+# ------------------------------------
+# MODELOS CON RELACIONES
+# ------------------------------------
+
 class UsuarioConSuscripcion(UsuarioResponse):
-    suscripcion: Optional[SuscripcionCreate] = None
+    suscripcion: Optional[SuscripcionResponse] = None
+
 
 class UsuarioConPerfil(UsuarioResponse):
     perfil: Optional[PerfilResponse] = None
 
-class SuscripcionConDetalle(suscripcionResponse):
+
+class SuscripcionConDetalle(SuscripcionResponse):
     detalle_suscripcion: Optional[DetalleSuscripcionResponse] = None
 
-class suscripcionConUsuario(suscripcionResponse):
+
+class SuscripcionConUsuario(SuscripcionResponse):
     usuario: Optional[UsuarioResponse] = None
 
-class detalleConSuscripcion(DetalleSuscripcionResponse):
-    suscripcion: Optional[suscripcionResponse] = None
 
-class categoriaConObras(CategoriaResponse):
+class DetalleConSuscripcion(DetalleSuscripcionResponse):
+    suscripcion: Optional[SuscripcionResponse] = None
+
+
+class CategoriaConObras(CategoriaResponse):
     obras: Optional[list[ObraResponse]] = None
 
-class generoConObras(GeneroResponse):
+
+class GeneroConObras(GeneroResponse):
     obras: Optional[list[ObraResponse]] = None
 
-class ObrasConCategoria(ObraResponse):
+
+class ObraConCategoria(ObraResponse):
     categoria: Optional[CategoriaResponse] = None
 
-class ObrasConGenero(ObraResponse):
+
+class ObraConGenero(ObraResponse):
     genero: Optional[GeneroResponse] = None
 
-class perfilConUsuario(PerfilResponse):
+
+class PerfilConUsuario(PerfilResponse):
     usuario: Optional[UsuarioResponse] = None
 
-class perfilConHistorial(PerfilResponse):
+
+class PerfilConHistorial(PerfilResponse):
     historial: Optional[list[HistorialReproduccionResponse]] = None
 
-class historialConPerfil(HistorialReproduccionResponse):
+
+class HistorialConPerfil(HistorialReproduccionResponse):
     perfil: Optional[PerfilResponse] = None
 
-# Modelos de respuesta para la API
+
+# ------------------------------------
+# RESPUESTAS GENERICAS
+# ------------------------------------
+
 class RespuestaAPI(BaseModel):
     mensaje: str
     exito: bool = True
