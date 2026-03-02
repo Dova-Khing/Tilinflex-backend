@@ -3,7 +3,7 @@ CRUD PARA EL HISTORIAL DE LAS REPRODUCCIONES
 """
 
 from sqlalchemy.orm import Session
-from entities.historial_reproduccion import HistorialReproduccion
+from API.src.entities.historial_reproduccion import HistorialReproduccion
 from typing import List, Optional
 from uuid import UUID
 

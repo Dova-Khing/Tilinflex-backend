@@ -2,7 +2,7 @@
 CRUD para suscripciones
 """
 import re
-from entities.suscripciones import Suscripcion, SuscripcionBase
+from API.src.entities.suscripciones import Suscripcion, SuscripcionBase
 from sqlalchemy.orm import Session
 from uuid import UUID
 from typing import List, Optional

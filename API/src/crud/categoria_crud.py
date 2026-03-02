@@ -4,7 +4,7 @@ La categoría se asigna a los audiovisuales para organizarlos y facilitar su bú
 """
 
 from sqlalchemy.orm import Session
-from entities.categoria import Categoria
+from API.src.entities.categoria import Categoria
 from typing import List, Optional
 from uuid import UUID
 

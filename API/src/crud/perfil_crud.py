@@ -5,10 +5,10 @@ Un perfil representa la información de un usuario en el sistema.
 
 import re
 from sqlalchemy.orm import Session
-from entities.perfil import Perfil
+from API.src.entities.perfil import Perfil
 from uuid import UUID
 from typing import List, Optional
-from .usuarios_crud import UsuariosCRUD
+from .usuarios_crud import UsuarioCRUD
 
 
 class PerfilCRUD:
@@ -26,8 +26,7 @@ class PerfilCRUD:
         return re.match(pattern, nombre_usuario) is not None
 
     def _validar_id_usuario(self, id_usuario: UUID) -> bool:
-        """Validar que el usuario exista"""
-        return UsuariosCRUD(self.db).obtener_usuario(id_usuario) is not None
+        return UsuarioCRUD(self.db).obtener_usuario(id_usuario) is not None
 
     # -----------------------------------
     # CREATE

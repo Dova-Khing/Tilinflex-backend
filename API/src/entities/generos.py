@@ -7,7 +7,7 @@ from sqlalchemy import Column, String, DateTime
 from sqlalchemy.orm import relationship
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
-
+from pydantic import BaseModel, Field
 from .base import Base
 
 
@@ -50,3 +50,10 @@ class Genero(Base):
             f"<Genero(id_genero={self.id_genero}, "
             f"nombre_genero='{self.nombre_genero}')>"
         )
+
+class GeneroResponse(BaseModel):
+    id_genero: uuid.UUID
+    nombre_genero: str
+
+    class Config:
+        from_attributes = True

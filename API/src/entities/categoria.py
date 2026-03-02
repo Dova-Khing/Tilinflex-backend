@@ -35,3 +35,10 @@ class Categoria(Base):
 
     def __repr__(self):
         return f"<Categoria(nombre_categoria='{self.nombre_categoria}')>"
+
+class CategoriaResponse(BaseModel):
+    id_categoria: uuid.UUID
+    nombre_categoria: str
+
+    class Config:
+        from_attributes = True

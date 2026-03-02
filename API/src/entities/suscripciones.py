@@ -29,35 +29,35 @@ class Suscripcion(Base):
         id_detalle_suscripcion FK: Identificador de detalle de suscripción (si aplica)
     """
 
-__tablename__ = 'suscripciones'
-id_suscripcion: uuid.UUID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-tipo_suscripcion: str = Column(String(50), nullable=False)
-fecha_inicio: datetime = Column(DateTime, default=datetime.utcnow)
-fecha_fin: datetime = Column(DateTime, nullable=True)
-id_detalle_suscripcion: Optional[uuid.UUID] = Column(UUID(as_uuid=True), nullable=True)
+    __tablename__ = 'suscripciones'
+    id_suscripcion: uuid.UUID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    tipo_suscripcion: str = Column(String(50), nullable=False)
+    fecha_inicio: datetime = Column(DateTime, default=datetime.utcnow)
+    fecha_fin: datetime = Column(DateTime, nullable=True)
+    id_detalle_suscripcion: Optional[uuid.UUID] = Column(UUID(as_uuid=True), nullable=True)
 
-usuarios = relationship(
-    "Usuario", back_populates="suscripcion", uselist=True)
+    usuarios = relationship(
+        "Usuario", back_populates="suscripcion", uselist=True)
 
-detalle_suscripcion = relationship("DetalleSuscripcion",
-                                   back_populates="suscripcion")
+    detalle_suscripcion = relationship("DetalleSuscripcion",
+                                    back_populates="suscripcion")
 
 
-def __repr__(self) -> str:
-        return f"<Suscripcion(id de la suscripcion={self.id_suscripcion}, tipo de suscripcion='{self.tipo_suscripcion}', fecha de inicio='{self.fecha_inicio}', fecha de fin='{self.fecha_fin}')>"
+    def __repr__(self) -> str:
+            return f"<Suscripcion(id de la suscripcion={self.id_suscripcion}, tipo de suscripcion='{self.tipo_suscripcion}', fecha de inicio='{self.fecha_inicio}', fecha de fin='{self.fecha_fin}')>"
 
-def __to_dict__(self) -> dict:
-        return {
-            "id de la suscripcion": str(self.id_suscripcion),
-            "tipo de suscripcion": self.tipo_suscripcion,
-            "fecha de inicio": self.fecha_inicio.isoformat(),
-            "fecha de fin": self.fecha_fin.isoformat() if self.fecha_fin else None,
-            "id detalle de la suscripcion": str(self.id_detalle_suscripcion) if self.id_detalle_suscripcion else None
-        }
+    def __to_dict__(self) -> dict:
+            return {
+                "id de la suscripcion": str(self.id_suscripcion),
+                "tipo de suscripcion": self.tipo_suscripcion,
+                "fecha de inicio": self.fecha_inicio.isoformat(),
+                "fecha de fin": self.fecha_fin.isoformat() if self.fecha_fin else None,
+                "id detalle de la suscripcion": str(self.id_detalle_suscripcion) if self.id_detalle_suscripcion else None
+            }
 
-"""
-ESQUEMAAS DE PYDANTIC PARA LA ENTIDAD SUSCRIPCIONES
-"""
+    """
+    ESQUEMAAS DE PYDANTIC PARA LA ENTIDAD SUSCRIPCIONES
+    """
 
 class SuscripcionBase(BaseModel):
     """
@@ -93,4 +93,4 @@ class SuscripcionResponse(SuscripcionBase):
     id_suscripcion: uuid.UUID = Field(..., example=str(uuid.uuid4()))
 
     class Config:
-        orm_mode = True
+        from_attributes  = True
