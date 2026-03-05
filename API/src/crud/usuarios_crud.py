@@ -25,7 +25,8 @@ class validaciones_usuario:
     """
     Clase de validaciones para los datos del usuario.
     Contiene métodos estáticos para validar el formato del email,
-    el país y la edad."""
+    el país y la edad.
+    """
 
     def validar_usuario(usuario: Usuario) -> bool:
         """
@@ -55,7 +56,6 @@ class validaciones_usuario:
         Valida que el país sea uno de los permitidos.
         Retorna True si el país es válido (América Latina, Estados Unidos, España), de lo contrario False.
         """
-        # Códigos de países permitidos: América Latina, Estados Unidos y España
         paises_permitidos = [
             "AR",
             "BO",
@@ -80,21 +80,17 @@ class validaciones_usuario:
             "US",
             "ES",
         ]
-
         try:
-            # Buscar el país por nombre y obtener su código
             pais_obj = pycountry.countries.search_fuzzy(pais)
             if pais_obj:
                 return pais_obj[0].alpha_2 in paises_permitidos
         except (AttributeError, LookupError):
             pass
-
         return False
 
     def validar_edad(edad: int) -> bool:
         """
-        Valida que la edad sea un número positivo
-        y mayor o igual a 18 años.
+        Valida que la edad sea un número positivo y mayor o igual a 18 años.
         Retorna True si la edad es válida, de lo contrario False.
         """
         try:
@@ -113,7 +109,7 @@ class validaciones_usuario:
         """
         Valida que el nombre y apellido no estén vacíos
         y contengan solo caracteres alfabéticos.
-        Retorna True si el nombre y apellido son válidos, de lo contrario False.
+        Retorna True si son válidos, de lo contrario False.
         """
         if not nombre or not apellido:
             print("Error: El nombre y apellido no pueden estar vacíos.")
@@ -140,37 +136,36 @@ class UsuarioCRUD:
     def __init__(self, db: Session):
         self.db = db
 
-    def crear_usuario(self, usuario: Usuario) -> Optional[Usuario]:
-        """
-        Crea un nuevo usuario en la base de datos.
-        Retorna el usuario creado o None si hubo un error.
-        """
-        if not validaciones_usuario.validar_usuario(usuario):
-            return None
-        if not validaciones_usuario.validar_email(usuario.email):
-            print("Error: El formato del email es inválido.")
-            return None
-        if not validaciones_usuario.validar_pais(usuario.pais):
-            print(
-                "Error: El país no es válido. Debe ser de América Latina, Estados Unidos o España."
-            )
-            return None
-        if not validaciones_usuario.validar_edad(usuario.edad):
-            return None
-        if not validaciones_usuario.validar_nombre_apellido(
-            usuario.nombre, usuario.apellido
-        ):
-            return None
+    def crear_usuario(
+        self,
+        nombre: str,
+        apellido: str,
+        email: str,
+        contrasena: str,
+        telefono: str = None,
+        edad: int = None,
+        pais: str = None,
+        admin: bool = False,
+    ) -> Optional[Usuario]:
+        """Crear un nuevo usuario en la base de datos."""
+        if not validaciones_usuario.validar_email(email):
+            raise ValueError("El formato del email es inválido.")
+        if not validaciones_usuario.validar_pais(pais):
+            raise ValueError("El país no es válido.")
+        if not validaciones_usuario.validar_edad(edad):
+            raise ValueError("La edad debe ser mayor o igual a 18 años.")
+        if not validaciones_usuario.validar_nombre_apellido(nombre, apellido):
+            raise ValueError("Nombre o apellido inválido.")
 
         nuevo_usuario = Usuario(
-            nombre=usuario.nombre.strip().capitalize(),
-            apellido=usuario.apellido.strip().capitalize(),
-            email=usuario.email.lower().strip(),
-            telefono=usuario.telefono,
-            contrasena_hash=usuario.contrasena_hash,
-            admin=usuario.admin,
-            pais=usuario.pais,
-            edad=usuario.edad,
+            nombre=nombre.strip().capitalize(),
+            apellido=apellido.strip().capitalize(),
+            email=email.lower().strip(),
+            telefono=telefono,
+            contrasena_hash=PasswordManager.hash_password(contrasena),
+            admin=admin,
+            pais=pais,
+            edad=edad,
         )
 
         self.db.add(nuevo_usuario)
@@ -180,7 +175,7 @@ class UsuarioCRUD:
 
     def obtener_usuario(self, usuario_id: UUID) -> Optional[Usuario]:
         """Obtener un usuario por ID"""
-        return self.db.query(Usuario).filter(Usuario.id == usuario_id).first()
+        return self.db.query(Usuario).filter(Usuario.id_usuario == usuario_id).first()
 
     def obtener_usuario_por_email(self, email: str) -> Optional[Usuario]:
         """Obtener un usuario por email"""
@@ -207,10 +202,8 @@ class UsuarioCRUD:
         if not usuario or not usuario.activo:
             print("Error: El usuario no existe o no está activo.")
             return None
-
         elif PasswordManager.verify_password(contrasena_hash, usuario.contrasena_hash):
             return usuario
-
         else:
             print("Error: Email o contraseña incorrectos.")
             return None
@@ -227,11 +220,9 @@ class UsuarioCRUD:
         if not PasswordManager.verify_password(
             contrasena_actual, usuario.contrasena_hash
         ):
-
             raise ValueError("La contraseña actual es incorrecta.")
 
         es_valida, mensaje = PasswordManager.validar_strength(nueva_contrasena_hash)
-
         if not es_valida:
             raise ValueError(f"Nueva contraseña invalida: {mensaje}")
 
@@ -252,7 +243,7 @@ class UsuarioCRUD:
                 raise ValueError("Email inválido")
             if (
                 self.obtener_usuario_por_email(email)
-                and self.obtener_usuario_por_email(email).id != usuario_id
+                and self.obtener_usuario_por_email(email).id_usuario != usuario_id
             ):
                 raise ValueError("El email ya está registrado")
             kwargs["email"] = email.lower().strip()
@@ -307,17 +298,17 @@ class UsuarioCRUD:
 
     def obtener_usuarios_admin(self) -> List[Usuario]:
         """Obtener todos los usuarios administradores"""
-        return self.db.query(Usuario).filter(Usuario.es_admin == True).all()
+        return self.db.query(Usuario).filter(Usuario.admin == True).all()
 
     def es_admin(self, usuario_id: UUID) -> bool:
         """Verificar si un usuario es administrador"""
         usuario = self.obtener_usuario(usuario_id)
-        return usuario.es_admin if usuario else False
+        return usuario.admin if usuario else False
 
     def obtener_admin_por_defecto(self) -> Optional[Usuario]:
         """Obtener el usuario administrador por defecto"""
         return (
             self.db.query(Usuario)
-            .filter(Usuario.email == "admin@system.com", Usuario.es_admin == True)
+            .filter(Usuario.email == "admin@system.com", Usuario.admin == True)
             .first()
         )
