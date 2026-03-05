@@ -3,14 +3,16 @@ version: '3.8'
 services:
   backend:
     build:
-      context: .. # Apunta a la carpeta padre (raíz del proyecto)
-      dockerfile: docker/Dockerfile # Si tu Dockerfile está en /docker
+      context: ..
+      dockerfile: docker/Dockerfile
     container_name: tilinflex-backend-dev
+    env_file:
+      - ../API/.env
     volumes:
-      - ..:/app # Monta la carpeta padre (raíz) en /app
+      - ..:/app
     ports:
       - "8000:8000"
-    working_dir: /app # Importante: trabajar en /app
+    working_dir: /app
     environment:
       - PYTHONUNBUFFERED=1
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn API.app:app --host 0.0.0.0 --port 8000 --reload
