@@ -11,7 +11,7 @@ from typing import Optional
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
 
-from .base import Base
+from API.database.config import Base
 
 
 class HistorialReproduccion(Base):

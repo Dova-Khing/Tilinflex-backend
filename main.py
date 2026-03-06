@@ -450,7 +450,7 @@ def main():
     print("API Plataforma de Streaming - Menú por consola")
     print("Iniciando API en http://localhost:8000 ...")
     server = threading.Thread(target=_iniciar_api, daemon=True)
-    server.start()
+    #server.start()
     time.sleep(1.5)
     print("API lista.\n")
     while True:

@@ -12,7 +12,7 @@ from typing import Optional, List
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
 
-from .base import Base
+from API.database.config import Base
 
 
 class Usuario(Base):

@@ -9,7 +9,7 @@ import uuid
 from sqlalchemy.dialects.postgresql import UUID
 from pydantic import BaseModel, Field
 
-from .base import Base
+from API.database.config import Base
 
 
 class Genero(Base):

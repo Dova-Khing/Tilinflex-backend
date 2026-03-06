@@ -30,7 +30,7 @@ Para iniciar el proyecto debes:
 
 3. **Ejecutar el servidor:**
    ```bash
-   python API/login.py
+   python main.py
    ```
 
 El servidor se ejecutará en `http://localhost:8000`
