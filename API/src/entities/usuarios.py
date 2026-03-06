@@ -1,17 +1,16 @@
 """
-ENTINDAD USUARIO
+ENTIDAD USUARIO
 
 MODELO DE USUARIOS CON SQLAlchemy y esquemas de validacion con Pydantic.
 """
 
-from sqlalchemy import Column, Integer, String, DateTime, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, EmailStr, Field, validator
 from datetime import datetime
 from typing import Optional, List
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
-import os
 
 from .base import Base
 
@@ -36,10 +35,14 @@ class Usuario(Base):
         activo: Indica si el usuario está activo
     """
 
-    __tablename__ = 'usuarios'
+    __tablename__ = "usuarios"
 
-    id_usuario: uuid.UUID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    id_suscripcion: Optional[uuid.UUID] = Column(UUID(as_uuid=True), nullable=True)
+    id_usuario: uuid.UUID = Column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    id_suscripcion: Optional[uuid.UUID] = Column(
+        UUID(as_uuid=True), ForeignKey("suscripciones.id_suscripcion"), nullable=True
+    )
     nombre: str = Column(String(50), nullable=False)
     apellido: str = Column(String(50), nullable=False)
     email: str = Column(String(100), unique=True, nullable=False)
@@ -47,7 +50,9 @@ class Usuario(Base):
     edad: int = Column(Integer, nullable=True)
     contrasena_hash: str = Column(String(255), nullable=False)
     fecha_registro: datetime = Column(DateTime, default=datetime.utcnow)
-    fecha_actualizacion: datetime = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    fecha_actualizacion: datetime = Column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
     admin: bool = Column(Boolean, default=False)
     pais: Optional[str] = Column(String(50), nullable=True)
     activo: bool = Column(Boolean, default=True)
@@ -71,7 +76,7 @@ class Usuario(Base):
             "fecha_actualizacion": self.fecha_actualizacion.isoformat(),
             "admin": self.admin,
             "pais": self.pais,
-            "activo": self.activo
+            "activo": self.activo,
         }
 
 
@@ -85,12 +90,17 @@ class UsuarioBase(BaseModel):
     """
     Esquema base para un usuario
     """
+
     nombre: str = Field(..., max_length=50, description="Nombre completo del usuario")
     apellido: str = Field(..., max_length=50, description="Apellido del usuario")
     email: EmailStr = Field(...)
-    telefono: Optional[str] = Field(None, max_length=20, description="Número telefónico del usuario")
+    telefono: Optional[str] = Field(
+        None, max_length=20, description="Número telefónico del usuario"
+    )
     edad: Optional[int] = Field(None, ge=0, description="Edad del usuario")
-    pais: Optional[str] = Field(None, max_length=50, description="País de residencia del usuario")
+    pais: Optional[str] = Field(
+        None, max_length=50, description="País de residencia del usuario"
+    )
     activo: Optional[bool] = Field(None, description="Indica si el usuario está activo")
     admin: Optional[bool] = Field(None, description="¿Es administrador del sistema?")
 
@@ -99,6 +109,7 @@ class UsuarioCreate(UsuarioBase):
     """
     Esquema para la creación de un nuevo usuario
     """
+
     contrasena: str = Field(..., min_length=8, description="Contraseña del usuario")
     activo: bool = Field(default=True, description="Indica si el usuario está activo")
     admin: bool = Field(default=False, description="¿Es administrador del sistema?")
@@ -126,6 +137,7 @@ class UsuarioUpdate(BaseModel):
     """
     Esquema para la actualización de un usuario existente
     """
+
     nombre: Optional[str] = Field(None, max_length=50)
     apellido: Optional[str] = Field(None, max_length=50)
     email: Optional[EmailStr] = Field(None)
@@ -141,6 +153,7 @@ class UsuarioResponse(UsuarioBase):
     """
     Esquema para la respuesta de un usuario
     """
+
     id_usuario: uuid.UUID
     id_suscripcion: Optional[uuid.UUID] = None
     fecha_registro: Optional[datetime] = None
@@ -154,6 +167,7 @@ class UsuarioListResponse(BaseModel):
     """
     Esquema para la respuesta de una lista de usuarios
     """
+
     usuarios: List[UsuarioResponse]
     total: int
     pagina: int
