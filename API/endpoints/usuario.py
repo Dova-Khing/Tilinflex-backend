@@ -91,8 +91,7 @@ async def obtener_usuario_por_email(email: str, db: Session = Depends(get_db)):
         usuario = crud.obtener_usuario_por_email(email)
         if not usuario:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Usuario no encontrado"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado"
             )
         return usuario
     except HTTPException:
@@ -155,8 +154,7 @@ async def obtener_usuario(usuario_id: UUID, db: Session = Depends(get_db)):
         usuario = crud.obtener_usuario(usuario_id)
         if not usuario:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Usuario no encontrado"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado"
             )
         return usuario
     except HTTPException:
@@ -197,8 +195,10 @@ async def crear_usuario(usuario_data: UsuarioCreate, db: Session = Depends(get_d
             admin=usuario_data.admin,
         )
     except ValueError as e:
+        # ValueError por validaciones: datos mal recibidos
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
+        # Error inesperado
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al crear usuario: {str(e)}",
@@ -230,8 +230,7 @@ async def actualizar_usuario(
         usuario_existente = crud.obtener_usuario(usuario_id)
         if not usuario_existente:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Usuario no encontrado"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado"
             )
 
         campos = {k: v for k, v in usuario_data.dict().items() if v is not None}
@@ -270,8 +269,7 @@ async def eliminar_usuario(usuario_id: UUID, db: Session = Depends(get_db)):
         crud = UsuarioCRUD(db)
         if not crud.obtener_usuario(usuario_id):
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Usuario no encontrado"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado"
             )
 
         if crud.eliminar_usuario(usuario_id):
@@ -311,8 +309,7 @@ async def desactivar_usuario(usuario_id: UUID, db: Session = Depends(get_db)):
         usuario = crud.desactivar_usuario(usuario_id)
         if not usuario:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Usuario no encontrado"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado"
             )
         return usuario
     except HTTPException:
@@ -348,14 +345,11 @@ async def cambiar_contrasena(
         crud = UsuarioCRUD(db)
         if not crud.obtener_usuario(usuario_id):
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Usuario no encontrado"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado"
             )
 
         if crud.cambiar_contrasena(
-            usuario_id,
-            cambio_data.contrasena_actual,
-            cambio_data.contrasena_nueva
+            usuario_id, cambio_data.contrasena_actual, cambio_data.contrasena_nueva
         ):
             return RespuestaAPI(mensaje="Contrasena cambiada exitosamente", exito=True)
 

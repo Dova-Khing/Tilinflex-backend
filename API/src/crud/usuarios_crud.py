@@ -18,7 +18,7 @@ import pycountry
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from API.src.entities.usuarios import Usuario
-import API.auth.security as PasswordManager
+from API.auth.security import PasswordManager
 
 
 class validaciones_usuario:
@@ -150,9 +150,9 @@ class UsuarioCRUD:
         """Crear un nuevo usuario en la base de datos."""
         if not validaciones_usuario.validar_email(email):
             raise ValueError("El formato del email es inválido.")
-        if not validaciones_usuario.validar_pais(pais):
+        if pais and not validaciones_usuario.validar_pais(pais):
             raise ValueError("El país no es válido.")
-        if not validaciones_usuario.validar_edad(edad):
+        if edad is not None and not validaciones_usuario.validar_edad(edad):
             raise ValueError("La edad debe ser mayor o igual a 18 años.")
         if not validaciones_usuario.validar_nombre_apellido(nombre, apellido):
             raise ValueError("Nombre o apellido inválido.")
@@ -222,7 +222,9 @@ class UsuarioCRUD:
         ):
             raise ValueError("La contraseña actual es incorrecta.")
 
-        es_valida, mensaje = PasswordManager.validar_strength(nueva_contrasena_hash)
+        es_valida, mensaje = PasswordManager.validate_password_strength(
+            nueva_contrasena_hash
+        )
         if not es_valida:
             raise ValueError(f"Nueva contraseña invalida: {mensaje}")
 
@@ -269,7 +271,7 @@ class UsuarioCRUD:
 
         if "contrasena" in kwargs:
             contrasena = kwargs["contrasena"]
-            es_valida, mensaje = PasswordManager.validar_strength(contrasena)
+            es_valida, mensaje = PasswordManager.validate_password_strength(contrasena)
             if not es_valida:
                 raise ValueError(f"Contraseña inválida: {mensaje}")
             kwargs["contrasena_hash"] = PasswordManager.hash_password(contrasena)

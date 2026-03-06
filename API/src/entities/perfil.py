@@ -26,58 +26,36 @@ class Perfil(Base):
         id_usuario: FK hacia usuario
     """
 
-    __tablename__ = 'perfiles'
+    __tablename__ = "perfiles"
 
     id_perfil: uuid.UUID = Column(
-        UUID(as_uuid=True),
-        primary_key=True,
-        default=uuid.uuid4
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
 
-    nombre_usuario: str = Column(
-        String(100),
-        nullable=False
-    )
+    nombre_usuario: str = Column(String(100), nullable=False)
 
-    idioma: str = Column(
-        String(50),
-        nullable=False,
-        default="es"
-    )
+    idioma: str = Column(String(50), nullable=False, default="es")
 
-    es_infantil: bool = Column(
-        Boolean,
-        default=False
-    )
+    es_infantil: bool = Column(Boolean, default=False)
 
-    fecha_creacion: datetime = Column(
-        DateTime,
-        default=datetime.utcnow
-    )
+    fecha_creacion: datetime = Column(DateTime, default=datetime.utcnow)
 
     # --------------------
     # FOREIGN KEY
     # --------------------
 
     id_usuario: uuid.UUID = Column(
-        UUID(as_uuid=True),
-        ForeignKey("usuarios.id_usuario"),
-        nullable=False
+        UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=False
     )
 
     # --------------------
     # RELACIONES
     # --------------------
 
-    usuarios = relationship(
-        "Usuario",
-        back_populates="perfiles"
-    )
+    usuario = relationship("Usuario", back_populates="perfil")
 
     historial_reproduccion = relationship(
-        "HistorialReproduccion",
-        back_populates="perfil",
-        cascade="all, delete"
+        "HistorialReproduccion", back_populates="perfil", cascade="all, delete"
     )
 
     def __repr__(self) -> str:
@@ -91,50 +69,45 @@ class Perfil(Base):
         return {
             "id_perfil": str(self.id_perfil),
             "nombre_usuario": self.nombre_usuario,
-             "id_usuario": str(self.id_usuario),
+            "id_usuario": str(self.id_usuario),
             "idioma": self.idioma,
             "es_infantil": self.es_infantil,
-            "fecha_creacion": self.fecha_creacion.isoformat()
-           
+            "fecha_creacion": self.fecha_creacion.isoformat(),
         }
+
+
 """
 ESQUEMAS DE PYDANTIC PARA PERFIL
 """
 
+
 class PerfilBase(BaseModel):
 
-    nombre_usuario: str = Field(
-        ...,
-        example="Camilo",
-        min_length=2,
-        max_length=100
-    )
+    nombre_usuario: str = Field(..., example="Camilo", min_length=2, max_length=100)
 
-    idioma: str = Field(
-        default="es",
-        example="es"
-    )
+    idioma: str = Field(default="es", example="es")
 
-    es_infantil: bool = Field(
-        default=False,
-        example=False
-    )
+    es_infantil: bool = Field(default=False, example=False)
 
     id_usuario: uuid.UUID
 
-    @validator('idioma')
+    @validator("idioma")
     def validar_idioma(cls, v):
         idiomas_validos = ["es", "en", "fr", "de"]
         if v not in idiomas_validos:
             raise ValueError("Idioma no soportado")
         return v
+
+
 class PerfilCreate(PerfilBase):
     pass
+
 
 class PerfilUpdate(BaseModel):
     nombre_usuario: Optional[str]
     idioma: Optional[str]
     es_infantil: Optional[bool]
+
 
 class PerfilResponse(PerfilBase):
     id_perfil: uuid.UUID
