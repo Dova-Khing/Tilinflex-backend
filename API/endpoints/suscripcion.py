@@ -17,15 +17,9 @@ router = APIRouter(prefix="/suscripciones", tags=["Suscripciones"])
 
 
 @router.get("/", response_model=List[SuscripcionResponse])
-async def obtener_todas_suscripciones(
-    skip: int = 0, limit: int = 100, db=Depends(get_db)
-):
+async def obtener_todas_suscripciones(db: Session = Depends(get_db)):
     """
-    Obtener una lista de suscripciones.
-
-    Args:
-        skip: Numero de registros a omitir para paginacion.
-        limit: Numero maximo de registros a retornar.
+    Obtener una lista de todas las suscripciones.
 
     Returns:
         Lista de suscripciones registradas.
@@ -35,7 +29,7 @@ async def obtener_todas_suscripciones(
     """
     try:
         crud = SuscripcionCRUD(db=db)
-        return crud.obtener_todas_las_suscripciones(skip=skip, limit=limit)
+        return crud.obtener_todas_las_suscripciones()
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -76,8 +70,12 @@ async def obtener_suscripcion(suscripcion_id: UUID, db: Session = Depends(get_db
         )
 
 
-@router.post("/", response_model=SuscripcionResponse, status_code=status.HTTP_201_CREATED)
-async def crear_suscripcion(suscripcion: SuscripcionCreate, db: Session = Depends(get_db)):
+@router.post(
+    "/", response_model=SuscripcionResponse, status_code=status.HTTP_201_CREATED
+)
+async def crear_suscripcion(
+    suscripcion: SuscripcionCreate, db: Session = Depends(get_db)
+):
     """
     Crear una nueva suscripcion.
 
@@ -104,7 +102,7 @@ async def crear_suscripcion(suscripcion: SuscripcionCreate, db: Session = Depend
 async def actualizar_suscripcion(
     suscripcion_id: UUID,
     suscripcion: SuscripcionCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Actualizar una suscripcion existente.
@@ -130,8 +128,7 @@ async def actualizar_suscripcion(
                 detail="Suscripcion no encontrada",
             )
 
-        campos = {k: v for k, v in suscripcion.dict().items() if v is not None}
-        return crud.actualizar_suscripcion(suscripcion_id, campos)
+        return crud.actualizar_suscripcion(suscripcion_id, suscripcion)
 
     except HTTPException:
         raise
