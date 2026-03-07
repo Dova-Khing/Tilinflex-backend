@@ -2,7 +2,9 @@
 Menú por consola que usa el CRUD (cliente de la API).
 Al ejecutar main.py se inicia la API en segundo plano (uvicorn) y luego el menú.
 """
+
 import sys
+
 sys.path.insert(0, ".")
 
 from API.database import CATEGORIAS_DEFAULT, GENEROS_DEFAULT
@@ -15,13 +17,17 @@ from API.src.crud.historial_reproducciones import HistorialReproduccionCRUD
 from API.src.crud.generos_crud import GeneroCRUD
 from API.src.crud.detalle_suscripcion_crud import DetalleSuscripcionCRUD
 from API.src.crud.categoria_crud import CategoriaCRUD
+import os
+
 
 def get_db():
     return SessionLocal()
 
+
 # ─────────────────────────────────────────────
 # MOSTRAR
 # ─────────────────────────────────────────────
+
 
 def mostrar_usuarios():
     db = get_db()
@@ -31,7 +37,9 @@ def mostrar_usuarios():
             print("  No hay usuarios.")
             return
         for u in usuarios:
-            print(f"  {u.id_usuario} | {u.nombre} {u.apellido} | {u.email} | activo={u.activo}")
+            print(
+                f"  {u.id_usuario} | {u.nombre} {u.apellido} | {u.email} | activo={u.activo}"
+            )
     except Exception as e:
         print(f"  Error: {e}")
     finally:
@@ -91,7 +99,9 @@ def mostrar_historial():
             print("  No hay reproducciones.")
             return
         for h in historial:
-            print(f"  {h.id_historial} | ID perfil: {h.id_perfil} | Fecha: {h.fecha_visualizacion}")
+            print(
+                f"  {h.id_historial} | ID perfil: {h.id_perfil} | Fecha: {h.fecha_visualizacion}"
+            )
     except Exception as e:
         print(f"  Error: {e}")
     finally:
@@ -102,12 +112,9 @@ def mostrar_generos():
     db = get_db()
     try:
         crud = GeneroCRUD(db)
-        
-        # Inicializar géneros por defecto si no existen
         for nombre in GENEROS_DEFAULT:
             if not crud.obtener_genero_por_nombre(nombre):
                 crud.crear_genero(nombre)
-        
         generos = crud.obtener_todos_generos()
         if not generos:
             print("  No hay géneros.")
@@ -128,7 +135,9 @@ def mostrar_detalle_suscripciones():
             print("  No hay detalles de suscripciones.")
             return
         for d in detalles:
-            print(f"  {d.id_detalle_suscripcion} | ID suscripción: {d.id_suscripcion} | Valor: {d.valor}")
+            print(
+                f"  {d.id_detalle_suscripcion} | ID suscripción: {d.id_suscripcion} | Valor: {d.valor}"
+            )
     except Exception as e:
         print(f"  Error: {e}")
     finally:
@@ -139,12 +148,9 @@ def mostrar_categorias():
     db = get_db()
     try:
         crud = CategoriaCRUD(db)
-        
-        # Inicializar categorías por defecto si no existen
         for nombre in CATEGORIAS_DEFAULT:
             if not crud.obtener_categoria_por_nombre(nombre):
                 crud.crear_categoria(nombre)
-        
         categorias = crud.obtener_todas_categorias()
         if not categorias:
             print("  No hay categorías.")
@@ -156,10 +162,22 @@ def mostrar_categorias():
     finally:
         db.close()
 
+
+# ─────────────────────────────────────────────
+# MENÚS
+# ─────────────────────────────────────────────
+
 def menu_usuarios():
     while True:
         print("\n--- Usuarios ---")
-        print("1. Listar  2. Ver uno  3. Crear  4. Actualizar  5. Eliminar  0. Volver")
+        print(
+            "1. Listar \n"
+            "2. Ver uno  \n"
+            "3. Crear  \n"
+            "4. Actualizar  \n"
+            "5. Eliminar  \n"
+            "0. Volver"
+        )
         op = input("Opción: ").strip()
         if op == "0":
             break
@@ -183,9 +201,13 @@ def menu_usuarios():
                 pais = input("País: ").strip()
                 if nombre and apellido and email and contrasena:
                     crud.crear_usuario(
-                        nombre=nombre, apellido=apellido, email=email,
-                        contrasena=contrasena, telefono=telefono,
-                        edad=int(edad) if edad else None, pais=pais or None
+                        nombre=nombre,
+                        apellido=apellido,
+                        email=email,
+                        contrasena=contrasena,
+                        telefono=telefono,
+                        edad=int(edad) if edad else None,
+                        pais=pais or None,
                     )
                     print("  Usuario creado.")
                 else:
@@ -212,12 +234,20 @@ def menu_usuarios():
             print(f"  Error: {e}")
         finally:
             db.close()
+        input("\n  Presioná Enter para continuar...")
 
 
 def menu_perfiles():
     while True:
         print("\n--- Perfiles ---")
-        print("1. Listar  2. Ver uno  3. Crear  4. Actualizar  5. Eliminar  0. Volver")
+        print(
+            "1. Listar \n"
+            "2. Ver uno  \n"
+            "3. Crear  \n"
+            "4. Actualizar  \n"
+            "5. Eliminar  \n"
+            "0. Volver"
+        )
         op = input("Opción: ").strip()
         if op == "0":
             break
@@ -236,7 +266,12 @@ def menu_perfiles():
                 idioma = input("Idioma (vacío=es): ").strip() or "es"
                 infantil = input("¿Es infantil? (s/n): ").strip().lower() == "s"
                 if nombre and uid:
-                    crud.crear_perfil(nombre_usuario=nombre, id_usuario=uid, idioma=idioma, es_infantil=infantil)
+                    crud.crear_perfil(
+                        nombre_usuario=nombre,
+                        id_usuario=uid,
+                        idioma=idioma,
+                        es_infantil=infantil,
+                    )
                     print("  Perfil creado.")
                 else:
                     print("  Faltan datos.")
@@ -259,12 +294,19 @@ def menu_perfiles():
             print(f"  Error: {e}")
         finally:
             db.close()
+        input("\n  Presioná Enter para continuar...")
 
 
 def menu_suscripciones():
     while True:
         print("\n--- Suscripciones ---")
-        print("1. Listar  2. Ver una  3. Crear  4. Actualizar  0. Volver")
+        print(
+            "1. Listar \n"
+            "2. Ver una  \n"
+            "3. Crear  \n"
+            "4. Actualizar  \n"
+            "0. Volver"
+        )
         op = input("Opción: ").strip()
         if op == "0":
             break
@@ -280,8 +322,11 @@ def menu_suscripciones():
             elif op == "3":
                 from API.src.entities.suscripciones import SuscripcionBase
                 tipo = input("Tipo (mensual/anual/trimestral): ").strip()
-                if tipo:
-                    crud.crear_suscripcion(SuscripcionBase(tipo_suscripcion=tipo))
+                uid = input("ID usuario: ").strip()
+                if tipo and uid:
+                    crud.crear_suscripcion(
+                        SuscripcionBase(tipo_suscripcion=tipo, id_usuario=uid)
+                    )
                     print("  Suscripción creada.")
                 else:
                     print("  Faltan datos.")
@@ -292,18 +337,28 @@ def menu_suscripciones():
                 from API.src.entities.suscripciones import SuscripcionBase
                 tipo = input("Tipo suscripción (vacío=no cambiar): ").strip()
                 if tipo:
-                    crud.actualizar_suscripcion(sid, SuscripcionBase(tipo_suscripcion=tipo))
+                    crud.actualizar_suscripcion(
+                        sid, SuscripcionBase(tipo_suscripcion=tipo, id_usuario="00000000-0000-0000-0000-000000000000")
+                    )
                     print("  Suscripción actualizada.")
         except Exception as e:
             print(f"  Error: {e}")
         finally:
             db.close()
+        input("\n  Presioná Enter para continuar...")
 
 
 def menu_obras():
     while True:
         print("\n--- Obras ---")
-        print("1. Listar  2. Ver una  3. Crear  4. Actualizar  5. Eliminar  0. Volver")
+        print(
+            "1. Listar \n"
+            "2. Ver una  \n"
+            "3. Crear  \n"
+            "4. Actualizar \n"
+            "5. Eliminar \n"
+            "0. Volver"
+        )
         op = input("Opción: ").strip()
         if op == "0":
             break
@@ -324,9 +379,11 @@ def menu_obras():
                 episodios = input("Episodios: ").strip()
                 if nombre and id_categoria and id_genero and anio:
                     crud.crear_obra(
-                        nombre=nombre, id_categoria=id_categoria,
-                        id_genero=id_genero, anio=int(anio),
-                        episodios=int(episodios) if episodios else 1
+                        nombre=nombre,
+                        id_categoria=id_categoria,
+                        id_genero=id_genero,
+                        anio=int(anio),
+                        episodios=int(episodios) if episodios else 1,
                     )
                     print("  Obra creada.")
                 else:
@@ -335,10 +392,13 @@ def menu_obras():
                 oid = input("ID obra: ").strip()
                 if not oid:
                     continue
-                nombre = input("Nombre (vacío=no cambiar): ").strip()
+                nombre = input("Nombre obra (vacío=no cambiar): ").strip()
+                gid = input("ID género (vacío=no cambiar): ").strip()
                 kwargs = {}
                 if nombre:
                     kwargs["nombre"] = nombre
+                if gid:
+                    kwargs["id_genero"] = gid
                 crud.actualizar_obra(oid, **kwargs)
                 print("  Obra actualizada.")
             elif op == "5":
@@ -350,12 +410,17 @@ def menu_obras():
             print(f"  Error: {e}")
         finally:
             db.close()
+        input("\n  Presioná Enter para continuar...")
 
 
 def menu_historial():
     while True:
         print("\n--- Historial de reproducciones ---")
-        print("1. Listar  2. Ver uno  0. Volver")
+        print(
+            "1. Listar \n"
+            "2. Ver uno  \n"
+            "0. Volver"
+        )
         op = input("Opción: ").strip()
         if op == "0":
             break
@@ -372,12 +437,17 @@ def menu_historial():
             print(f"  Error: {e}")
         finally:
             db.close()
+        input("\n  Presioná Enter para continuar...")
 
 
 def menu_generos():
     while True:
         print("\n--- Géneros ---")
-        print("1. Listar  2. Ver uno  0. Volver")
+        print(
+            "1. Listar \n"
+            "2. Ver uno  \n"
+            "0. Volver"
+        )
         op = input("Opción: ").strip()
         if op == "0":
             break
@@ -394,12 +464,17 @@ def menu_generos():
             print(f"  Error: {e}")
         finally:
             db.close()
+        input("\n  Presioná Enter para continuar...")
 
 
 def menu_detalle():
     while True:
         print("\n--- Detalle de suscripciones ---")
-        print("1. Listar  2. Ver uno  0. Volver")
+        print(
+            "1. Listar \n"
+            "2. Ver uno  \n"
+            "0. Volver"
+        )
         op = input("Opción: ").strip()
         if op == "0":
             break
@@ -416,12 +491,17 @@ def menu_detalle():
             print(f"  Error: {e}")
         finally:
             db.close()
+        input("\n  Presioná Enter para continuar...")
 
 
 def menu_categorias():
     while True:
         print("\n--- Categorías ---")
-        print("1. Listar  2. Ver una  0. Volver")
+        print(
+            "1. Listar \n"
+            "2. Ver una  \n"
+            "0. Volver"
+        )
         op = input("Opción: ").strip()
         if op == "0":
             break
@@ -438,17 +518,29 @@ def menu_categorias():
             print(f"  Error: {e}")
         finally:
             db.close()
+        input("\n  Presioná Enter para continuar...")
 
 
 # ─────────────────────────────────────────────
 # MAIN
 # ─────────────────────────────────────────────
 
+
 def main():
     print("API Plataforma de Streaming - Menú por consola")
     while True:
         print("\n========== MENÚ ==========")
-        print("1. Usuarios  2. Perfiles  3. Categorías  4. Obras  5. Historial  6. Géneros  7. Suscripciones  8. Detalle suscripciones  0. Salir")
+        print(
+            "1. Usuarios  \n"
+            "2. Perfiles  \n"
+            "3. Categorías  \n"
+            "4. Obras  \n"
+            "5. Historial  \n"
+            "6. Géneros  \n"
+            "7. Suscripciones  \n"
+            "8. Detalle suscripciones  \n"
+            "0. Salir"
+        )
         op = input("Opción: ").strip()
         if op == "0":
             print("Hasta luego.")

@@ -3,7 +3,7 @@ ENTIDAD SUSCRIPCIONES
 MODELO DE DATOS PARA LA ENTIDAD SUSCRIPCIONES
 """
 
-from sqlalchemy import Column, String, DateTime
+from sqlalchemy import Column, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, Field, validator
 from datetime import datetime
@@ -17,6 +17,7 @@ from API.database.config import Base
 class Suscripcion(Base):
     """
     Modelo de Suscripcion que representa la tabla 'suscripciones'
+    Un usuario puede tener una suscripcion, que se crea cuando decide pagar.
     """
 
     __tablename__ = "suscripciones"
@@ -27,11 +28,23 @@ class Suscripcion(Base):
     tipo_suscripcion: str = Column(String(50), nullable=False)
     fecha_inicio: datetime = Column(DateTime, default=datetime.utcnow)
     fecha_fin: datetime = Column(DateTime, nullable=True)
-    id_detalle_suscripcion: Optional[uuid.UUID] = Column(
-        UUID(as_uuid=True), nullable=True
+
+    # --------------------
+    # FOREIGN KEY
+    # --------------------
+
+    id_usuario: uuid.UUID = Column(
+        UUID(as_uuid=True),
+        ForeignKey("usuarios.id_usuario"),
+        nullable=False,
+        unique=True,  # Un usuario solo puede tener una suscripcion activa
     )
 
-    usuarios = relationship("Usuario", back_populates="suscripciones")
+    # --------------------
+    # RELACIONES
+    # --------------------
+
+    usuario = relationship("Usuario", back_populates="suscripcion")
     detalle_suscripcion = relationship(
         "DetalleSuscripcion", back_populates="suscripcion"
     )
@@ -48,11 +61,7 @@ class Suscripcion(Base):
             "tipo_suscripcion": self.tipo_suscripcion,
             "fecha_inicio": self.fecha_inicio.isoformat(),
             "fecha_fin": self.fecha_fin.isoformat() if self.fecha_fin else None,
-            "id_detalle_suscripcion": (
-                str(self.id_detalle_suscripcion)
-                if self.id_detalle_suscripcion
-                else None
-            ),
+            "id_usuario": str(self.id_usuario),
         }
 
 
@@ -65,7 +74,7 @@ class SuscripcionBase(BaseModel):
     tipo_suscripcion: str = Field(..., example="mensual")
     fecha_inicio: Optional[datetime] = Field(default_factory=datetime.utcnow)
     fecha_fin: Optional[datetime] = Field(None)
-    id_detalle_suscripcion: Optional[uuid.UUID] = Field(None)
+    id_usuario: uuid.UUID
 
     @validator("tipo_suscripcion")
     def validate_tipo_suscripcion(cls, v):
@@ -90,6 +99,7 @@ class SuscripcionCreate(SuscripcionBase):
 
 class SuscripcionUpdate(BaseModel):
     tipo_suscripcion: Optional[str] = Field(None)
+    fecha_fin: Optional[datetime] = Field(None)
 
 
 class SuscripcionResponse(SuscripcionBase):
