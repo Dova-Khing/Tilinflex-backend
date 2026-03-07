@@ -25,3 +25,11 @@ class CategoriaCRUD:
     def obtener_todas_categorias(self) -> List[Categoria]:
         """Obtener todas las categorías"""
         return self.db.query(Categoria).all()
+
+    def crear_categoria(self, nombre: str) -> Categoria:
+        """Crear una nueva categoría"""
+        categoria = Categoria(nombre_categoria=nombre)
+        self.db.add(categoria)
+        self.db.commit()
+        self.db.refresh(categoria)
+        return categoria
