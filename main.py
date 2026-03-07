@@ -5,6 +5,7 @@ Al ejecutar main.py se inicia la API en segundo plano (uvicorn) y luego el menú
 import sys
 sys.path.insert(0, ".")
 
+from API.database import CATEGORIAS_DEFAULT, GENEROS_DEFAULT
 from API.database.config import SessionLocal
 from API.src.crud.usuarios_crud import UsuarioCRUD
 from API.src.crud.suscripciones_crud import SuscripcionCRUD
@@ -15,10 +16,8 @@ from API.src.crud.generos_crud import GeneroCRUD
 from API.src.crud.detalle_suscripcion_crud import DetalleSuscripcionCRUD
 from API.src.crud.categoria_crud import CategoriaCRUD
 
-
 def get_db():
     return SessionLocal()
-
 
 # ─────────────────────────────────────────────
 # MOSTRAR
@@ -102,7 +101,14 @@ def mostrar_historial():
 def mostrar_generos():
     db = get_db()
     try:
-        generos = GeneroCRUD(db).obtener_todos_generos()
+        crud = GeneroCRUD(db)
+        
+        # Inicializar géneros por defecto si no existen
+        for nombre in GENEROS_DEFAULT:
+            if not crud.obtener_genero_por_nombre(nombre):
+                crud.crear_genero(nombre)
+        
+        generos = crud.obtener_todos_generos()
         if not generos:
             print("  No hay géneros.")
             return
@@ -132,7 +138,14 @@ def mostrar_detalle_suscripciones():
 def mostrar_categorias():
     db = get_db()
     try:
-        categorias = CategoriaCRUD(db).obtener_todas_categorias()
+        crud = CategoriaCRUD(db)
+        
+        # Inicializar categorías por defecto si no existen
+        for nombre in CATEGORIAS_DEFAULT:
+            if not crud.obtener_categoria_por_nombre(nombre):
+                crud.crear_categoria(nombre)
+        
+        categorias = crud.obtener_todas_categorias()
         if not categorias:
             print("  No hay categorías.")
             return
@@ -376,7 +389,7 @@ def menu_generos():
             elif op == "2":
                 gid = input("ID género: ").strip()
                 if gid:
-                    print(f"  {crud.obtener_por_id(gid)}")
+                    print(f"  {crud.obtener_genero_por_id(gid)}")
         except Exception as e:
             print(f"  Error: {e}")
         finally:
@@ -420,7 +433,7 @@ def menu_categorias():
             elif op == "2":
                 cid = input("ID categoría: ").strip()
                 if cid:
-                    print(f"  {crud.obtener_por_id(cid)}")
+                    print(f"  {crud.obtener_categoria_por_id(cid)}")
         except Exception as e:
             print(f"  Error: {e}")
         finally:
