@@ -9,7 +9,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from pydantic import BaseModel, Field
 
-from .base import Base
+from API.database.config import Base
 
 
 class Categoria(Base):
@@ -28,13 +28,13 @@ class Categoria(Base):
     )
 
     # Una categoría tiene muchas obras
-    obras = relationship(
-        "Obra",
-        back_populates="categoria"
-    )
+    obras = relationship("Obra", back_populates="categorias", cascade="all, delete")
 
     def __repr__(self):
-        return f"<Categoria(nombre_categoria='{self.nombre_categoria}')>"
+        return (
+            f"<Categoria(id_categoria={self.id_categoria}, "
+            f"nombre_categoria='{self.nombre_categoria}')>"
+        )
 
 class CategoriaResponse(BaseModel):
     id_categoria: uuid.UUID
