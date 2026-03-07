@@ -25,3 +25,11 @@ class GeneroCRUD:
     def obtener_todos_generos(self) -> List[Genero]:
         """Obtener todos los géneros"""
         return self.db.query(Genero).all()
+    
+    def crear_genero(self, nombre: str) -> Genero:
+        """Crear una nueva categoría"""
+        genero = Genero(nombre_genero=nombre)
+        self.db.add(genero)
+        self.db.commit()
+        self.db.refresh(genero)
+        return genero

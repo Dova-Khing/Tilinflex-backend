@@ -28,7 +28,7 @@ class Categoria(Base):
     )
 
     # Una categoría tiene muchas obras
-    obras = relationship("Obra", back_populates="categorias", cascade="all, delete")
+    obras = relationship("Obra", back_populates="categoria", cascade="all, delete")
 
     def __repr__(self):
         return (
