@@ -12,6 +12,8 @@ from API.database.config import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
 from API.schemas import PerfilResponse
 from sqlalchemy.orm import Session
+from API.src.crud.usuarios_crud import UsuarioCRUD
+from API.schemas import UsuarioResponse
 
 router = APIRouter(prefix="/perfil", tags=["Perfil"])
 
@@ -33,7 +35,7 @@ async def obtener_todos_perfiles(db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener perfiles: {str(e)}"
+            detail=f"Error al obtener perfiles: {str(e)}",
         )
 
 
@@ -57,8 +59,7 @@ async def obtener_perfil(perfil_id: UUID, db: Session = Depends(get_db)):
         perfil = crud.obtener_perfil_por_id(perfil_id=perfil_id)
         if not perfil:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Perfil no encontrado"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Perfil no encontrado"
             )
         return perfil
     except HTTPException:
@@ -66,7 +67,7 @@ async def obtener_perfil(perfil_id: UUID, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener el perfil: {str(e)}"
+            detail=f"Error al obtener el perfil: {str(e)}",
         )
 
 
@@ -91,7 +92,7 @@ async def obtener_perfiles_por_usuario(id_usuario: UUID, db: Session = Depends(g
         if not perfiles:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="No se encontraron perfiles para este usuario"
+                detail="No se encontraron perfiles para este usuario",
             )
         return perfiles
     except HTTPException:
@@ -99,5 +100,29 @@ async def obtener_perfiles_por_usuario(id_usuario: UUID, db: Session = Depends(g
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener los perfiles del usuario: {str(e)}"
+            detail=f"Error al obtener los perfiles del usuario: {str(e)}",
+        )
+
+
+@router.get("/", response_model=List[UsuarioResponse])
+async def obtener_todos_usuarios(db: Session = Depends(get_db)):
+    """
+    Obtener todos los usuarios registrados en el sistema.
+
+    Args:
+        db: Sesion de base de datos.
+
+    Returns:
+        Lista de usuarios registrados.
+
+    Raises:
+        HTTPException 500: Si ocurre un error interno.
+    """
+    try:
+        crud = UsuarioCRUD(db)
+        return crud.obtener_todos_usuarios()
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al obtener usuarios: {str(e)}",
         )
