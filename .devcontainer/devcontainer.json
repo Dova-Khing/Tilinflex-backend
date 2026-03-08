@@ -1,0 +1,10 @@
+{
+    "name": "Tilinflex Backend Dev",
+    "dockerComposeFile": "../docker/docker-compose.yml",
+    "service": "backend",
+    "workspaceFolder": "/app",
+    "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance"
+    ]
+}
