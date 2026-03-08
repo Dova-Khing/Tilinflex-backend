@@ -1,0 +1,16 @@
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: tilinflex-backend-dev
+    env_file:
+      - ../API/.env
+    volumes:
+      - ..:/app
+    ports:
+      - "8000:8000"
+    working_dir: /app
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: uvicorn API.app:app --host 0.0.0.0 --port 8000 --reload
