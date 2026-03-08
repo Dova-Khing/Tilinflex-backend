@@ -9,6 +9,7 @@ from API.src.entities.perfil import Perfil
 from uuid import UUID
 from typing import List, Optional
 from .usuarios_crud import UsuarioCRUD
+from API.src.entities.usuarios import Usuario
 
 
 class PerfilCRUD:
@@ -63,6 +64,10 @@ class PerfilCRUD:
 
     def obtener_todos(self) -> List[Perfil]:
         return self.db.query(Perfil).all()
+
+    def obtener_todos_usuarios(self) -> List[Usuario]:
+        """Obtener todos los usuarios"""
+        return self.db.query(Usuario).all()
 
     # -----------------------------------
     # UPDATE

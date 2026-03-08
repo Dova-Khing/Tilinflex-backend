@@ -167,6 +167,7 @@ def mostrar_categorias():
 # MENÚS
 # ─────────────────────────────────────────────
 
+
 def menu_usuarios():
     while True:
         print("\n--- Usuarios ---")
@@ -261,6 +262,12 @@ def menu_perfiles():
                 if pid:
                     print(f"  {crud.obtener_por_id(pid)}")
             elif op == "3":
+                print(
+                    "  Para crear un perfil, necesitás el ID de un usuario existente. He aquí la lista de usuarios:"
+                )
+                usuarios = crud.obtener_todos_usuarios()
+                for u in usuarios:
+                    print(f"    {u.id_usuario}: {u.nombre} {u.apellido}")
                 nombre = input("Nombre perfil: ").strip()
                 uid = input("ID usuario: ").strip()
                 idioma = input("Idioma (vacío=es): ").strip() or "es"
@@ -321,6 +328,7 @@ def menu_suscripciones():
                     print(f"  {crud.obtener_suscripcion(sid)}")
             elif op == "3":
                 from API.src.entities.suscripciones import SuscripcionBase
+
                 tipo = input("Tipo (mensual/anual/trimestral): ").strip()
                 uid = input("ID usuario: ").strip()
                 if tipo and uid:
@@ -335,10 +343,15 @@ def menu_suscripciones():
                 if not sid:
                     continue
                 from API.src.entities.suscripciones import SuscripcionBase
+
                 tipo = input("Tipo suscripción (vacío=no cambiar): ").strip()
                 if tipo:
                     crud.actualizar_suscripcion(
-                        sid, SuscripcionBase(tipo_suscripcion=tipo, id_usuario="00000000-0000-0000-0000-000000000000")
+                        sid,
+                        SuscripcionBase(
+                            tipo_suscripcion=tipo,
+                            id_usuario="00000000-0000-0000-0000-000000000000",
+                        ),
                     )
                     print("  Suscripción actualizada.")
         except Exception as e:
@@ -416,11 +429,7 @@ def menu_obras():
 def menu_historial():
     while True:
         print("\n--- Historial de reproducciones ---")
-        print(
-            "1. Listar \n"
-            "2. Ver uno  \n"
-            "0. Volver"
-        )
+        print("1. Listar \n" "2. Ver uno  \n" "0. Volver")
         op = input("Opción: ").strip()
         if op == "0":
             break
@@ -443,11 +452,7 @@ def menu_historial():
 def menu_generos():
     while True:
         print("\n--- Géneros ---")
-        print(
-            "1. Listar \n"
-            "2. Ver uno  \n"
-            "0. Volver"
-        )
+        print("1. Listar \n" "2. Ver uno  \n" "0. Volver")
         op = input("Opción: ").strip()
         if op == "0":
             break
@@ -470,11 +475,7 @@ def menu_generos():
 def menu_detalle():
     while True:
         print("\n--- Detalle de suscripciones ---")
-        print(
-            "1. Listar \n"
-            "2. Ver uno  \n"
-            "0. Volver"
-        )
+        print("1. Listar \n" "2. Ver uno  \n" "0. Volver")
         op = input("Opción: ").strip()
         if op == "0":
             break
@@ -497,11 +498,7 @@ def menu_detalle():
 def menu_categorias():
     while True:
         print("\n--- Categorías ---")
-        print(
-            "1. Listar \n"
-            "2. Ver una  \n"
-            "0. Volver"
-        )
+        print("1. Listar \n" "2. Ver una  \n" "0. Volver")
         op = input("Opción: ").strip()
         if op == "0":
             break
