@@ -1,8 +1,8 @@
 # Sistema de Gestión de Plataforma de streaming - API REST
 
 Este proyecto implementa un sistema sobre reproducir contenido, recomendar el contenido mas visto y una busqueda por género
-utilizando **API REST** con conexión a **PostgreSQL** (Neon Database).  
-Incluye operaciones CRUD y validaciones con Pydantic.
+utilizando **API REST** con conexión a **PostgreSQL** (Neon Database), containerizado con **Docker**.  
+Incluye operaciones CRUD.
 
 
 ## Recursos Adicionales
@@ -13,25 +13,36 @@ Incluye operaciones CRUD y validaciones con Pydantic.
 - [Neon Documentation](https://neon.tech/docs)
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)
+- [Docker Documentation](https://docs.docker.com/)
+- [Python Documentation](https://docs.python.org/3/)
 
 ## Instalación
 
 Para iniciar el proyecto debes:
 
-1. **Instala las dependencias:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-2. **Configurar variables de entorno:**
-   Crear un archivo `.env` en la raíz del proyecto:
-   ```env
-   DATABASE_URL=postgresql://usuario:contraseña@host:puerto/database
-   ```
+1. **Requisitos previos:**
+   Asegúrate de tener instalado en tu máquina:
+   - [Docker](https://www.docker.com/)
+   - [Python](https://www.python.org/)
 
-3. **Ejecutar el servidor:**
-   ```bash
-   python main.py
-   ```
+2. **Configurar variables de entorno:**
+   Crear un archivo `.env` en la carpeta **API** del proyecto:
+```env
+   DATABASE_URL=postgresql://usuario:contraseña@host:puerto/database
+```
+
+3. **Levantar el contenedor Docker:**
+   Abre la aplicación Docker. Luego ejecuta:
+```bash
+   docker compose up -d
+```
+   Esto construirá la imagen y levantará los servicios (FastAPI + Uvicorn).
+
+4. **Iniciar el servidor (dentro del contenedor):**
+   El punto de entrada principal es `main.py`. Docker lo ejecuta automáticamente al levantar el contenedor. Si necesitas correrlo manualmente dentro del contenedor:
+```bash
+   docker exec -it  python main.py
+```
 
 El servidor se ejecutará en `http://localhost:8000`
 
@@ -66,12 +77,12 @@ Una vez que el servidor esté ejecutándose, puedes acceder a:
 ### Categorias (`/categorias`)
 - `GET /categorias/` - Listar categoria
 - `GET /categorias/{categoria_id}` - Obtener categoria por ID
-- `POST /categorias/{categoria_nombre}` - Obtener categoria por nombre
+- `GET /categorias/{categoria_nombre}` - Obtener categoria por nombre
 
 ### Géneros (`/generos`)
 - `GET /generos/` - Listar género
 - `GET /generos/{genero_id}` - Obtener género por ID
-- `POST /generos/{genero_nombre}` - Obtener género por nombre
+- `GET /generos/{genero_nombre}` - Obtener género por nombre
 
 ### Obras (`/obras`)
 - `GET /obras/` - Listar obras

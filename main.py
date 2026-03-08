@@ -169,6 +169,7 @@ def mostrar_categorias():
 # MENÚS
 # ─────────────────────────────────────────────
 
+
 def menu_usuarios():
     while True:
         print("\n--- Usuarios ---")
@@ -269,15 +270,12 @@ def menu_perfiles():
                     print(f"  {crud.obtener_por_id(pid)}")
 
             elif op == "3":
-<<<<<<< Updated upstream
-=======
                 print(
                     "  Para crear un perfil, necesitás el ID de un usuario existente. \n Aquí esta la lista de usuarios:"
                 )
                 usuarios = crud.obtener_todos_usuarios()
                 for u in usuarios:
                     print(f"    {u.id_usuario}: {u.nombre} {u.apellido}")
->>>>>>> Stashed changes
                 nombre = input("Nombre perfil: ").strip()
                 uid = input("ID usuario: ").strip()
                 idioma = input("Idioma (vacío=es): ").strip() or "es"
@@ -294,7 +292,9 @@ def menu_perfiles():
                     print("  Faltan datos.")
 
             elif op == "4":
-                print("  actualizar un perfil, necesitás su ID. \n Aquí esta la lista de perfiles:")
+                print(
+                    "  actualizar un perfil, necesitás su ID. \n Aquí esta la lista de perfiles:"
+                )
 
                 perfiles = crud.obtener_todos()
                 for p in perfiles:
@@ -310,7 +310,9 @@ def menu_perfiles():
                     print("  No hubo cambios.")
 
             elif op == "5":
-                print("  Para eliminar un perfil, necesitás su ID. \n Aquí esta la lista de perfiles:")
+                print(
+                    "  Para eliminar un perfil, necesitás su ID. \n Aquí esta la lista de perfiles:"
+                )
                 perfiles = crud.obtener_todos()
                 for p in perfiles:
                     print(f"    {p.id_perfil}: {p.nombre_usuario}")
@@ -350,6 +352,7 @@ def menu_suscripciones():
 
             elif op == "3":
                 from API.src.entities.suscripciones import SuscripcionBase
+
                 tipo = input("Tipo (mensual/anual/trimestral): ").strip()
                 print(
                     "  Para crear un perfil, necesitás el ID de un usuario existente. \n Aquí esta la lista de usuarios:"
@@ -360,7 +363,9 @@ def menu_suscripciones():
 
                 uid = input("ID usuario: ").strip()
                 valor = input("Valor a pagar: ").strip()
-                metodo = input("Método de pago (tarjeta_credito/tarjeta_debito/paypal/transferencia): ").strip()
+                metodo = input(
+                    "Método de pago (tarjeta_credito/tarjeta_debito/paypal/transferencia): "
+                ).strip()
                 if tipo and uid and valor and metodo:
                     nueva_suscripcion = crud.crear_suscripcion(
                         SuscripcionBase(tipo_suscripcion=tipo, id_usuario=uid)
@@ -368,7 +373,7 @@ def menu_suscripciones():
                     DetalleSuscripcionCRUD(db).crear_detalle_suscripcion(
                         valor=float(valor),
                         metodo_pago=metodo,
-                        id_suscripcion=nueva_suscripcion.id_suscripcion
+                        id_suscripcion=nueva_suscripcion.id_suscripcion,
                     )
                     print("  Suscripción y pago registrados.")
                 else:
@@ -379,10 +384,15 @@ def menu_suscripciones():
                 if not sid:
                     continue
                 from API.src.entities.suscripciones import SuscripcionBase
+
                 tipo = input("Tipo suscripción (vacío=no cambiar): ").strip()
                 if tipo:
                     crud.actualizar_suscripcion(
-                        sid, SuscripcionBase(tipo_suscripcion=tipo, id_usuario="00000000-0000-0000-0000-000000000000")
+                        sid,
+                        SuscripcionBase(
+                            tipo_suscripcion=tipo,
+                            id_usuario="00000000-0000-0000-0000-000000000000",
+                        ),
                     )
                     print("  Suscripción actualizada.")
         except Exception as e:
@@ -460,11 +470,7 @@ def menu_obras():
 def menu_historial():
     while True:
         print("\n--- Historial de reproducciones ---")
-        print(
-            "1. Listar \n"
-            "2. Ver uno  \n"
-            "0. Volver"
-        )
+        print("1. Listar \n" "2. Ver uno  \n" "0. Volver")
         op = input("Opción: ").strip()
         if op == "0":
             break
@@ -487,11 +493,7 @@ def menu_historial():
 def menu_generos():
     while True:
         print("\n--- Géneros ---")
-        print(
-            "1. Listar \n"
-            "2. Ver uno  \n"
-            "0. Volver"
-        )
+        print("1. Listar \n" "2. Ver uno  \n" "0. Volver")
         op = input("Opción: ").strip()
         if op == "0":
             break
@@ -514,11 +516,7 @@ def menu_generos():
 def menu_detalle():
     while True:
         print("\n--- Detalle de suscripciones ---")
-        print(
-            "1. Listar \n"
-            "2. Ver uno  \n"
-            "0. Volver"
-        )
+        print("1. Listar \n" "2. Ver uno  \n" "0. Volver")
         op = input("Opción: ").strip()
         if op == "0":
             break
@@ -541,11 +539,7 @@ def menu_detalle():
 def menu_categorias():
     while True:
         print("\n--- Categorías ---")
-        print(
-            "1. Listar \n"
-            "2. Ver una  \n"
-            "0. Volver"
-        )
+        print("1. Listar \n" "2. Ver una  \n" "0. Volver")
         op = input("Opción: ").strip()
         if op == "0":
             break
