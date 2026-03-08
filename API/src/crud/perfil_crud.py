@@ -32,18 +32,28 @@ class PerfilCRUD:
     # CREATE
     # -----------------------------------
 
-    def crear_perfil(self, nombre_usuario: str, id_usuario: UUID) -> Optional[Perfil]:
+
+    def crear_perfil(
+        self,
+        nombre_usuario: str,
+        id_usuario: UUID,
+        idioma: str = "es",
+        es_infantil: bool = False,
+    ) -> Optional[Perfil]:
         """Crear un nuevo perfil"""
 
-        # Validar nombre
         if not self._validar_nombre_usuario(nombre_usuario):
             return None
 
-        # Validar usuario existente
         if not self._validar_id_usuario(id_usuario):
             return None
 
-        nuevo_perfil = Perfil(nombre_usuario=nombre_usuario, id_usuario=id_usuario)
+        nuevo_perfil = Perfil(
+            nombre_usuario=nombre_usuario,
+            id_usuario=id_usuario,
+            idioma=idioma,
+            es_infantil=es_infantil,
+        )
 
         self.db.add(nuevo_perfil)
         self.db.commit()
