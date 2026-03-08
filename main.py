@@ -5,6 +5,8 @@ Al ejecutar main.py se inicia la API en segundo plano (uvicorn) y luego el menú
 
 import sys
 
+from pycountry import db
+
 sys.path.insert(0, ".")
 
 from API.database import CATEGORIAS_DEFAULT, GENEROS_DEFAULT
@@ -187,11 +189,13 @@ def menu_usuarios():
             crud = UsuarioCRUD(db)
             if op == "1":
                 mostrar_usuarios()
+
             elif op == "2":
                 uid = input("ID usuario: ").strip()
                 if uid:
                     u = crud.obtener_usuario(uid)
                     print(f"  {u}")
+
             elif op == "3":
                 nombre = input("Nombre: ").strip()
                 apellido = input("Apellido: ").strip()
@@ -213,6 +217,7 @@ def menu_usuarios():
                     print("  Usuario creado.")
                 else:
                     print("  Faltan datos.")
+
             elif op == "4":
                 uid = input("ID usuario: ").strip()
                 if not uid:
@@ -257,13 +262,16 @@ def menu_perfiles():
             crud = PerfilCRUD(db)
             if op == "1":
                 mostrar_perfiles()
+
             elif op == "2":
                 pid = input("ID perfil: ").strip()
+
                 if pid:
                     print(f"  {crud.obtener_por_id(pid)}")
+
             elif op == "3":
                 print(
-                    "  Para crear un perfil, necesitás el ID de un usuario existente. He aquí la lista de usuarios:"
+                    "  Para crear un perfil, necesitás el ID de un usuario existente. \n Aquí esta la lista de usuarios:"
                 )
                 usuarios = crud.obtener_todos_usuarios()
                 for u in usuarios:
@@ -282,17 +290,32 @@ def menu_perfiles():
                     print("  Perfil creado.")
                 else:
                     print("  Faltan datos.")
+
             elif op == "4":
+                print(
+                    "  actualizar un perfil, necesitás su ID. \n Aquí esta la lista de perfiles:"
+                )
+
+                perfiles = crud.obtener_todos()
+                for p in perfiles:
+                    print(f"    {p.id_perfil}: {p.nombre_usuario}")
                 pid = input("ID perfil: ").strip()
                 if not pid:
                     continue
                 nombre = input("Nombre perfil (vacío=no cambiar): ").strip()
-                kwargs = {}
                 if nombre:
-                    kwargs["nombre_usuario"] = nombre
-                crud.actualizar_perfil(pid, **kwargs)
-                print("  Perfil actualizado.")
+                    crud.actualizar_perfil(pid, nombre)
+                    print("  Perfil actualizado.")
+                else:
+                    print("  No hubo cambios.")
+
             elif op == "5":
+                print(
+                    "  Para eliminar un perfil, necesitás su ID. \n Aquí esta la lista de perfiles:"
+                )
+                perfiles = crud.obtener_todos()
+                for p in perfiles:
+                    print(f"    {p.id_perfil}: {p.nombre_usuario}")
                 pid = input("ID perfil a eliminar: ").strip()
                 if pid:
                     crud.eliminar_perfil(pid)
@@ -326,18 +349,36 @@ def menu_suscripciones():
                 sid = input("ID suscripción: ").strip()
                 if sid:
                     print(f"  {crud.obtener_suscripcion(sid)}")
+
             elif op == "3":
                 from API.src.entities.suscripciones import SuscripcionBase
 
                 tipo = input("Tipo (mensual/anual/trimestral): ").strip()
+                print(
+                    "  Para crear un perfil, necesitás el ID de un usuario existente. \n Aquí esta la lista de usuarios:"
+                )
+                usuarios = UsuarioCRUD(db).obtener_todos_usuarios()
+                for u in usuarios:
+                    print(f"    {u.id_usuario} -> {u.nombre} {u.apellido}")
+
                 uid = input("ID usuario: ").strip()
-                if tipo and uid:
-                    crud.crear_suscripcion(
+                valor = input("Valor a pagar: ").strip()
+                metodo = input(
+                    "Método de pago (tarjeta_credito/tarjeta_debito/paypal/transferencia): "
+                ).strip()
+                if tipo and uid and valor and metodo:
+                    nueva_suscripcion = crud.crear_suscripcion(
                         SuscripcionBase(tipo_suscripcion=tipo, id_usuario=uid)
                     )
-                    print("  Suscripción creada.")
+                    DetalleSuscripcionCRUD(db).crear_detalle_suscripcion(
+                        valor=float(valor),
+                        metodo_pago=metodo,
+                        id_suscripcion=nueva_suscripcion.id_suscripcion,
+                    )
+                    print("  Suscripción y pago registrados.")
                 else:
                     print("  Faltan datos.")
+
             elif op == "4":
                 sid = input("ID suscripción: ").strip()
                 if not sid:
