@@ -18,7 +18,7 @@ engine = create_engine(
     echo=False,
     pool_pre_ping=True,
     pool_recycle=300,
-    connect_args={"sslmode": "require"},
+    connect_args={"sslmode": os.getenv("DB_SSLMODE", "require")},
 )
 
 
