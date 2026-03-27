@@ -7,7 +7,7 @@ import uuid
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from API.database.config import Base
 

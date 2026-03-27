@@ -13,7 +13,6 @@ para validar los datos de entrada y salida.
 
 import re
 from uuid import UUID
-from sqlalchemy import UUID
 import pycountry
 from sqlalchemy.orm import Session
 from typing import List, Optional
