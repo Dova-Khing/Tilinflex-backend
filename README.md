@@ -53,6 +53,23 @@ Una vez que el servidor esté ejecutándose, puedes acceder a:
 - **Swagger UI**: `http://localhost:8000/docs`
 - **ReDoc**: `http://localhost:8000/redoc`
 
+## CI/CD Pipeline
+
+El proyecto cuenta con un pipeline de integración continua configurado con **GitHub Actions** (`.github/workflows/ci.yml`), que se ejecuta automáticamente en cada `push` o `pull request`.
+
+### Jobs
+
+**1. Lint y formato de código**
+Verifica la calidad y consistencia del código usando **Ruff**:
+- Detecta errores de linting
+- Verifica que el formato sea correcto
+
+**2. Verificación de esquema de base de datos**
+Levanta un contenedor temporal de **PostgreSQL 16** y valida que el esquema de la base de datos sea correcto ejecutando `scripts/verify_db.py`.
+
+**3. Build de imagen Docker**
+Construye la imagen Docker desde `docker/Dockerfile` para verificar que el build no tenga errores. El contenedor se destruye automáticamente al finalizar el job.
+
 ## Endpoints Principales
 
 ### Autenticación (`/auth`)
