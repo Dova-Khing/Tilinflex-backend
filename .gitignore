@@ -45,10 +45,10 @@ coverage.xml
 # Pytest
 .pytest_cache/
 
-# SQLAlchemy / Alembic (migraciones)
-alembic/versions/*.pyc
-alembic/versions/__pycache__/
-alembic/
+# SQLAlchemy / Alembic (solo caché, los archivos de migración sí se suben)
+API/migrations/versions/__pycache__/
+API/migrations/__pycache__/
+API/migrations/versions/*.pyc
 
 # Logs
 *.log
