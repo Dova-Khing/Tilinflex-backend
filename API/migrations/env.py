@@ -5,25 +5,23 @@ import os
 import sys
 from dotenv import load_dotenv
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
 load_dotenv()
 
-from src.entities.base import Base
-from src.entities import usuarios
-from src.entities import suscripciones
-from src.entities import obras
-from src.entities import categoria
-from src.entities import detalle_suscripcion
-from src.entities import perfil
-from src.entities import generos
-from src.entities import historial_reproduccion
+from API.database.config import Base  # noqa: E402
+from API.src.entities import usuarios  # noqa: F401, E402
+from API.src.entities import suscripciones  # noqa: F401, E402
+from API.src.entities import obras  # noqa: F401, E402
+from API.src.entities import categoria  # noqa: F401, E402
+from API.src.entities import detalle_suscripcion  # noqa: F401, E402
+from API.src.entities import perfil  # noqa: F401, E402
+from API.src.entities import generos  # noqa: F401, E402
+from API.src.entities import historial_reproduccion  # noqa: F401, E402
 
 config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
-
 
 database_url = os.getenv("DATABASE_URL")
 if database_url:
@@ -44,10 +42,12 @@ def run_migrations_offline():
 
 
 def run_migrations_online():
+    connect_args = {"sslmode": os.getenv("DB_SSLMODE", "require")}
     connectable = engine_from_config(
         config.get_section(config.config_ini_section),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
+        connect_args=connect_args,
     )
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)

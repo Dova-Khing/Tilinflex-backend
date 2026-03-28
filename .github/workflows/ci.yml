@@ -47,6 +47,11 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: python -m scripts.verify_db
 
+      - name: Aplicar migraciones Alembic
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: alembic upgrade head
+
       - name: Ejecutar seeder en Neon (datos iniciales)
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
