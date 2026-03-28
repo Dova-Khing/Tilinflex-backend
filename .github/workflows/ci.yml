@@ -2,9 +2,9 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [dev, prod]
+    branches: [dev]
   pull_request:
-    branches: [dev, prod]
+    branches: [dev]
 
 jobs:
   lint:
@@ -28,22 +28,8 @@ jobs:
         run: ruff format --check --diff . || true
 
   database:
-    name: Verificación de esquema de base de datos
+    name: Sincronización de base de datos (Neon)
     runs-on: ubuntu-latest
-    services:
-      postgres:    # GitHub Actions levanta un contenedor PostgreSQL temporal
-        image: postgres:16  # Se descarga la imagen, crea el contenedor
-        env:
-          POSTGRES_USER: test_user #Usuario de prueba para el testeo de squemas
-          POSTGRES_PASSWORD: test_password
-          POSTGRES_DB: tilinflex_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U test_user -d tilinflex_test"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
 
     steps:
       - uses: actions/checkout@v4
@@ -56,11 +42,15 @@ jobs:
       - name: Instalar dependencias
         run: pip install -r requirements.txt
 
-      - name: Crear esquema y verificar tablas
+      - name: Crear/actualizar esquema en Neon
         env:
-          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/tilinflex_test
-          DB_SSLMODE: disable
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: python -m scripts.verify_db
+
+      - name: Ejecutar seeder en Neon (datos iniciales)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python -m scripts.seeder
 
   docker:
     name: Build de imagen Docker
