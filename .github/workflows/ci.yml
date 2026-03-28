@@ -27,9 +27,44 @@ jobs:
       - name: Verificar formato
         run: ruff format --check --diff . || true
 
-  database:
-    name: Sincronización de base de datos (Neon)
+  security:
+    name: Seguridad de dependencias
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Instalar pip-audit y bandit
+        run: pip install pip-audit bandit
+
+      - name: Revisar vulnerabilidades en dependencias
+        run: pip-audit
+
+      - name: Revisar vulnerabilidades en código
+        run: bandit -r . --exclude ./.venv,./tests -ll || true
+
+  test:
+    name: Tests y coverage
+    runs-on: ubuntu-latest
+    needs: [lint, security]
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: tilinflex_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U test_user -d tilinflex_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
       - uses: actions/checkout@v4
@@ -42,7 +77,90 @@ jobs:
       - name: Instalar dependencias
         run: pip install -r requirements.txt
 
-      - name: Crear/actualizar esquema en Neon
+      - name: Ejecutar migraciones Alembic
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/tilinflex_test
+          DB_SSLMODE: disable
+        run: alembic upgrade head
+
+      - name: Ejecutar tests con coverage
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/tilinflex_test
+          DB_SSLMODE: disable
+        run: pytest --cov=. --cov-report=term-missing
+
+  healthcheck:
+    name: Verificar que la app inicia
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Iniciar app
+        run: |
+          python main.py &
+          sleep 5
+
+      - name: Verificar respuesta
+        run: curl -f http://localhost:8000 || exit 1
+
+  database:
+    name: Verificación de esquema de base de datos
+    runs-on: ubuntu-latest
+    needs: [test]
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: tilinflex_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U test_user -d tilinflex_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Ejecutar migraciones Alembic
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/tilinflex_test
+          DB_SSLMODE: disable
+        run: alembic upgrade head
+
+      - name: Verificar tablas
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/tilinflex_test
+          DB_SSLMODE: disable
+        run: python -m scripts.verify_db
+
+      - name: Ejecutar seeder (datos iniciales) en DB local
+        env:
+          DATABASE_URL: postgresql://test_user:test_password@localhost:5432/tilinflex_test
+          DB_SSLMODE: disable
+        run: python -m scripts.seeder
+
+      - name: Sincronizar esquema en Neon
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: python -m scripts.verify_db
@@ -60,9 +178,10 @@ jobs:
   docker:
     name: Build de imagen Docker
     runs-on: ubuntu-latest
+    needs: [healthcheck, database]
     steps:
       - uses: actions/checkout@v4
 
       - name: Build de imagen Docker
         run: docker build -f docker/Dockerfile -t tilinflex-backend:ci .
-#El contenedor se destruye automáticamente al finalizar el job, por lo que no es necesario agregar un paso para eliminarlo.
+      # El contenedor se destruye automáticamente al finalizar el job
