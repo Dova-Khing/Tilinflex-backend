@@ -1,0 +1,13 @@
+[lint]
+select = ["E", "F"]
+ignore = [
+    "E402",  # Module level import not at top of file (necesario en migrations/env.py)
+    "E712",  # Comparison to True/False (común en SQLAlchemy filters)
+]
+
+[lint.per-file-ignores]
+# Estos archivos importan modelos por side effects (SQLAlchemy los necesita registrados)
+"API/app.py" = ["F401"]
+"API/migrations/env.py" = ["F401"]
+"scripts/verify_db.py" = ["F401"]
+"main.py" = ["F401", "F811"]

@@ -38,6 +38,7 @@ class Usuario(Base):
     admin: bool = Column(Boolean, default=False)
     pais: Optional[str] = Column(String(50), nullable=True)
     activo: bool = Column(Boolean, default=True)
+    ultima_conexion: Optional[datetime] = Column(DateTime, nullable=True)
 
     perfil = relationship("Perfil", back_populates="usuario", uselist=False)
     suscripcion = relationship("Suscripcion", back_populates="usuario", uselist=False)

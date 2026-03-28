@@ -30,7 +30,7 @@ class TokenResponse(BaseModel):
 @router.post("/login", response_model=TokenResponse)
 async def login(login_data: UsuarioLogin, db: Session = Depends(get_db)):
     try:
-        print(f"Intento de login recibido:")
+        print("Intento de login recibido:")
         print(f"Nombre usuario: {login_data.nombre_usuario}")
         print(f"Contraseña length: {len(login_data.contrasena)}")
 
@@ -77,7 +77,7 @@ async def login(login_data: UsuarioLogin, db: Session = Depends(get_db)):
         )
 
         print(f"Login exitoso para: {usuario.nombre}")
-        print(f"Token JWT generado exitosamente")
+        print("Token JWT generado exitosamente")
 
         return TokenResponse(
             access_token=access_token,
@@ -116,7 +116,7 @@ async def registrar_usuario(usuario_data: UsuarioCreate, db: Session = Depends(g
     Registrar un nuevo usuario en el sistema
     """
     try:
-        print(f"Registro de usuario recibido:")
+        print("Registro de usuario recibido:")
         print(f"Nombre: {usuario_data.nombre}")
         print(f"Usuario: {usuario_data.nombre_usuario}")
         print(f"Email: {usuario_data.email}")
@@ -132,48 +132,6 @@ async def registrar_usuario(usuario_data: UsuarioCreate, db: Session = Depends(g
             edad=usuario_data.edad,
             pais=usuario_data.pais,
             es_admin=False,
-        )
-
-        print(f"Usuario registrado exitosamente: {usuario.nombre}")
-        return usuario
-
-    except ValueError as e:
-        print(f"Error de validación en registro: {str(e)}")
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-    except Exception as e:
-        print(f"ERROR inesperado en registro: {str(e)}")
-        import traceback
-
-        print(f"Traceback: {traceback.format_exc()}")
-
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al registrar usuario: {str(e)}",
-        )
-
-
-@router.post("/registro", response_model=UsuarioResponse)
-async def registrar_usuario(usuario_data: UsuarioCreate, db: Session = Depends(get_db)):
-    """
-    Registrar un nuevo usuario en el sistema
-    """
-    try:
-        print(f"Registro de usuario recibido:")
-        print(f"Nombre: {usuario_data.nombre}")
-        print(f"Email: {usuario_data.email}")
-
-        usuario_crud = UsuarioCRUD(db)
-
-        # Crear el usuario (el CRUD ya tiene todas las validaciones)
-        usuario = usuario_crud.crear_usuario(
-            nombre=usuario_data.nombre,
-            apellido=usuario_data.apellido,
-            email=usuario_data.email,
-            contrasena=usuario_data.contrasena,
-            telefono=usuario_data.telefono,
-            edad=usuario_data.edad,
-            pais=usuario_data.pais,
-            es_admin=False,  # Por defecto no es admin
         )
 
         print(f"Usuario registrado exitosamente: {usuario.nombre}")
