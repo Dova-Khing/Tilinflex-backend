@@ -8,3 +8,5 @@ alembic>=1.7.0
 pycountry
 passlib==1.7.4
 pydantic[email]
+pydantic-settings
+python-jose[cryptography]

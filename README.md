@@ -5,6 +5,86 @@ utilizando **API REST** con conexión a **PostgreSQL** (Neon Database), containe
 Incluye operaciones CRUD.
 
 
+## Autenticación JWT
+
+La API usa **JSON Web Tokens (JWT)** con el algoritmo **HS256** para proteger rutas que requieren sesión activa.
+
+### Flujo de autenticación
+
+```
+1. POST /auth/login  →  { email, contrasena }
+2. Respuesta         →  { access_token, token_type: "bearer" }
+3. Rutas protegidas  →  Header: Authorization: Bearer <access_token>
+```
+
+### Estructura del token
+
+El token contiene los siguientes claims:
+
+| Campo | Descripción |
+|---|---|
+| `sub` | UUID del usuario |
+| `nombre_usuario` | Nombre de usuario |
+| `rol` | Rol del usuario en el sistema |
+| `iat` | Timestamp de emisión |
+| `exp` | Timestamp de expiración |
+
+### Variables de entorno requeridas
+
+Agregar al archivo `.env`:
+
+```env
+JWT_SECRET_KEY=<cadena-larga-y-aleatoria>      # Obligatorio en producción
+JWT_ALGORITHM=HS256                             # Opcional, por defecto HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60                  # Opcional, por defecto 60 min (rango: 5–1440)
+```
+
+> **Buenas prácticas:** Generar la clave con `openssl rand -hex 32`. Nunca usar la clave por defecto en producción.
+
+### Validación en rutas protegidas
+
+Cada solicitud a una ruta protegida verifica que:
+1. El header `Authorization: Bearer <token>` esté presente.
+2. El token sea válido y no haya expirado.
+3. El usuario exista y esté activo en la base de datos.
+
+Si falla alguna de estas comprobaciones, la API responde con `401 Unauthorized` o `403 Forbidden`.
+
+---
+
+## Política CORS
+
+La API configura **CORS (Cross-Origin Resource Sharing)** para permitir el consumo desde frontends específicos.
+
+### Orígenes permitidos por defecto (desarrollo)
+
+```
+http://localhost:3000
+http://localhost:5173
+http://127.0.0.1:3000
+http://127.0.0.1:5173
+```
+
+### Configuración en producción
+
+Definir los orígenes del frontend en el `.env` (separados por coma):
+
+```env
+CORS_ORIGINS=https://mi-frontend.com,https://www.mi-frontend.com
+```
+
+> **Importante:** No se permite `*` como origen cuando `allow_credentials=True`. Siempre se deben listar los orígenes explícitamente en producción.
+
+### Métodos y cabeceras habilitadas
+
+| Tipo | Valores permitidos |
+|---|---|
+| Métodos | `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `OPTIONS` |
+| Cabeceras | `Authorization`, `Content-Type`, `Accept` |
+| Credenciales | Habilitadas (`allow_credentials: true`) |
+
+---
+
 ## Recursos Adicionales
 
 ### Documentación Oficial
@@ -69,6 +149,10 @@ Levanta un contenedor temporal de **PostgreSQL 16** y valida que el esquema de l
 
 **3. Build de imagen Docker**
 Construye la imagen Docker desde `docker/Dockerfile` para verificar que el build no tenga errores. El contenedor se destruye automáticamente al finalizar el job.
+
+## Video sobre el funcionamiento del proyecto
+Denle click a la imagen
+[![Ver video](Memejpg.jpg)](https://onedrive.live.com/?qt=allmyphotos&photosData=%2Fshare%2F7EB256FF20C19C1C%21sb88b2db9a07f48eab5f434ae7d5906fd%3Fithint%3Dvideo%26e%3DGl2sTb%26migratedtospo%3Dtrue&cid=7EB256FF20C19C1C&id=7EB256FF20C19C1C%21sb88b2db9a07f48eab5f434ae7d5906fd&redeem=aHR0cHM6Ly8xZHJ2Lm1zL3YvYy83ZWIyNTZmZjIwYzE5YzFjL0lRQzVMWXU0ZjZEcVNMWDBOSzU5V1FiOUFmRDZjczJoWUhrb3luODFNVGJZUGZjP2U9R2wyc1Ri&v=photos)
 
 ## Endpoints Principales
 
