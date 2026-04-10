@@ -5,6 +5,86 @@ utilizando **API REST** con conexión a **PostgreSQL** (Neon Database), containe
 Incluye operaciones CRUD.
 
 
+## Autenticación JWT
+
+La API usa **JSON Web Tokens (JWT)** con el algoritmo **HS256** para proteger rutas que requieren sesión activa.
+
+### Flujo de autenticación
+
+```
+1. POST /auth/login  →  { email, contrasena }
+2. Respuesta         →  { access_token, token_type: "bearer" }
+3. Rutas protegidas  →  Header: Authorization: Bearer <access_token>
+```
+
+### Estructura del token
+
+El token contiene los siguientes claims:
+
+| Campo | Descripción |
+|---|---|
+| `sub` | UUID del usuario |
+| `nombre_usuario` | Nombre de usuario |
+| `rol` | Rol del usuario en el sistema |
+| `iat` | Timestamp de emisión |
+| `exp` | Timestamp de expiración |
+
+### Variables de entorno requeridas
+
+Agregar al archivo `.env`:
+
+```env
+JWT_SECRET_KEY=<cadena-larga-y-aleatoria>      # Obligatorio en producción
+JWT_ALGORITHM=HS256                             # Opcional, por defecto HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60                  # Opcional, por defecto 60 min (rango: 5–1440)
+```
+
+> **Buenas prácticas:** Generar la clave con `openssl rand -hex 32`. Nunca usar la clave por defecto en producción.
+
+### Validación en rutas protegidas
+
+Cada solicitud a una ruta protegida verifica que:
+1. El header `Authorization: Bearer <token>` esté presente.
+2. El token sea válido y no haya expirado.
+3. El usuario exista y esté activo en la base de datos.
+
+Si falla alguna de estas comprobaciones, la API responde con `401 Unauthorized` o `403 Forbidden`.
+
+---
+
+## Política CORS
+
+La API configura **CORS (Cross-Origin Resource Sharing)** para permitir el consumo desde frontends específicos.
+
+### Orígenes permitidos por defecto (desarrollo)
+
+```
+http://localhost:3000
+http://localhost:5173
+http://127.0.0.1:3000
+http://127.0.0.1:5173
+```
+
+### Configuración en producción
+
+Definir los orígenes del frontend en el `.env` (separados por coma):
+
+```env
+CORS_ORIGINS=https://mi-frontend.com,https://www.mi-frontend.com
+```
+
+> **Importante:** No se permite `*` como origen cuando `allow_credentials=True`. Siempre se deben listar los orígenes explícitamente en producción.
+
+### Métodos y cabeceras habilitadas
+
+| Tipo | Valores permitidos |
+|---|---|
+| Métodos | `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `OPTIONS` |
+| Cabeceras | `Authorization`, `Content-Type`, `Accept` |
+| Credenciales | Habilitadas (`allow_credentials: true`) |
+
+---
+
 ## Recursos Adicionales
 
 ### Documentación Oficial
