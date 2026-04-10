@@ -150,6 +150,10 @@ Levanta un contenedor temporal de **PostgreSQL 16** y valida que el esquema de l
 **3. Build de imagen Docker**
 Construye la imagen Docker desde `docker/Dockerfile` para verificar que el build no tenga errores. El contenedor se destruye automáticamente al finalizar el job.
 
+## Video sobre el funcionamiento del proyecto
+Denle click a la imagen
+[![Ver video](Memejpg.jpg)](https://onedrive.live.com/?qt=allmyphotos&photosData=%2Fshare%2F7EB256FF20C19C1C%21sb88b2db9a07f48eab5f434ae7d5906fd%3Fithint%3Dvideo%26e%3DGl2sTb%26migratedtospo%3Dtrue&cid=7EB256FF20C19C1C&id=7EB256FF20C19C1C%21sb88b2db9a07f48eab5f434ae7d5906fd&redeem=aHR0cHM6Ly8xZHJ2Lm1zL3YvYy83ZWIyNTZmZjIwYzE5YzFjL0lRQzVMWXU0ZjZEcVNMWDBOSzU5V1FiOUFmRDZjczJoWUhrb3luODFNVGJZUGZjP2U9R2wyc1Ri&v=photos)
+
 ## Endpoints Principales
 
 ### Autenticación (`/auth`)
