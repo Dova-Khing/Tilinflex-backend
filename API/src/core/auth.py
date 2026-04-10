@@ -12,9 +12,9 @@ from jose import JWTError, jwt
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from src.core.config import Settings, get_settings
-from src.database.config import get_db
-from src.entities.usuarios import Usuario
+from API.src.core.config import Settings, get_settings
+from API.src.database.config import get_db
+from API.src.entities.usuarios import Usuario
 
 bearer_scheme = HTTPBearer(auto_error=False)
 

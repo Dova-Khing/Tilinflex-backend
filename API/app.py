@@ -40,10 +40,10 @@ from API.endpoints import (
 )
 
 
-""" @asynccontextmanager
+@asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
-    yield """
+    yield
 
 
 app = FastAPI(
