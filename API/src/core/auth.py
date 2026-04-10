@@ -13,7 +13,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from API.src.core.config import Settings, get_settings
-from API.src.database.config import get_db
+from API.database.config import get_db
 from API.src.entities.usuarios import Usuario
 
 bearer_scheme = HTTPBearer(auto_error=False)
@@ -23,15 +23,15 @@ class CurrentUser(BaseModel):
     """Claims mínimos del usuario autenticado (útil si una ruta necesita el contexto)."""
 
     id_usuario: UUID
-    nombre_usuario: str
-    rol: str
+    email: str
+    admin: bool
 
 
 def create_access_token(
     *,
     subject: UUID,
-    nombre_usuario: str,
-    rol: str,
+    email: str,
+    admin: bool,
     settings: Settings,
 ) -> str:
     """Genera un JWT de acceso (HS256) con expiración configurada."""
@@ -39,8 +39,8 @@ def create_access_token(
     expire = now + timedelta(minutes=settings.access_token_expire_minutes)
     payload = {
         "sub": str(subject),
-        "nombre_usuario": nombre_usuario,
-        "rol": rol,
+        "email": email,
+        "admin": admin,
         "iat": int(now.timestamp()),
         "exp": expire,
     }
@@ -88,6 +88,6 @@ async def get_current_user(
 
     return CurrentUser(
         id_usuario=user.id_usuario,
-        nombre_usuario=user.nombre_usuario,
-        rol=user.rol,
+        email=user.email,
+        admin=user.admin,
     )

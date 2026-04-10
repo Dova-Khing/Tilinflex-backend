@@ -29,6 +29,7 @@ from API.src.core.error_handlers import (
 from API.src.core.responses import success_response
 
 from API.endpoints import (
+    login,
     usuario,
     obras,
     categorias,
@@ -66,6 +67,7 @@ app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, generic_exception_handler)
 
+app.include_router(login.router)
 app.include_router(usuario.router)
 app.include_router(obras.router)
 app.include_router(categorias.router)
