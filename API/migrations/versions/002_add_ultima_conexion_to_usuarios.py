@@ -15,10 +15,18 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column(
-        "usuarios",
-        sa.Column("ultima_conexion", sa.DateTime(), nullable=True),
-    )
+    conn = op.get_bind()
+    result = conn.execute(
+        sa.text(
+            "SELECT 1 FROM information_schema.columns "
+            "WHERE table_name='usuarios' AND column_name='ultima_conexion'"
+        )
+    ).fetchone()
+    if not result:
+        op.add_column(
+            "usuarios",
+            sa.Column("ultima_conexion", sa.DateTime(), nullable=True),
+        )
 
 
 def downgrade():
