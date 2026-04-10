@@ -18,19 +18,25 @@ from API.src.entities.generos import Genero
 from API.src.entities.detalle_suscripcion import DetalleSuscripcion
 from API.src.entities.historial_reproduccion import HistorialReproduccion
 
-from src.core.config import get_settings
-from src.core.exceptions import AppException
-from src.core.error_handlers import (
+from API.src.core.config import get_settings
+from API.src.core.exceptions import AppException
+from API.src.core.error_handlers import (
     app_exception_handler,
     generic_exception_handler,
     http_exception_handler,
     validation_exception_handler,
 )
-from src.core.responses import success_response
+from API.src.core.responses import success_response
 
 from API.endpoints import (
-    usuario, obras, categorias, genero,
-    suscripcion, perfil, historial_reproduccion, detalle_suscripcion
+    usuario,
+    obras,
+    categorias,
+    genero,
+    suscripcion,
+    perfil,
+    historial_reproduccion,
+    detalle_suscripcion,
 )
 
 
