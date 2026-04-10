@@ -18,26 +18,33 @@ from API.src.entities.generos import Genero
 from API.src.entities.detalle_suscripcion import DetalleSuscripcion
 from API.src.entities.historial_reproduccion import HistorialReproduccion
 
-from src.core.config import get_settings
-from src.core.exceptions import AppException
-from src.core.error_handlers import (
+from API.src.core.config import get_settings
+from API.src.core.exceptions import AppException
+from API.src.core.error_handlers import (
     app_exception_handler,
     generic_exception_handler,
     http_exception_handler,
     validation_exception_handler,
 )
-from src.core.responses import success_response
+from API.src.core.responses import success_response
 
 from API.endpoints import (
-    usuario, obras, categorias, genero,
-    suscripcion, perfil, historial_reproduccion, detalle_suscripcion
+    login,
+    usuario,
+    obras,
+    categorias,
+    genero,
+    suscripcion,
+    perfil,
+    historial_reproduccion,
+    detalle_suscripcion,
 )
 
 
-""" @asynccontextmanager
+@asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
-    yield """
+    yield
 
 
 app = FastAPI(
@@ -60,6 +67,7 @@ app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, generic_exception_handler)
 
+app.include_router(login.router)
 app.include_router(usuario.router)
 app.include_router(obras.router)
 app.include_router(categorias.router)
