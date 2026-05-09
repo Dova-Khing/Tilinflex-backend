@@ -42,7 +42,7 @@ class Obra(Base):
     anio: int = Column(Integer, nullable=False)
 
     tipo: str = Column(String(20), nullable=True)
-    hianime_id: str = Column(String(150), nullable=True)
+    anime_id: str = Column(String(150), nullable=True)
     thumbnail_url: str = Column(Text, nullable=True)
     banner_url: str = Column(Text, nullable=True)
     trailer_url: str = Column(Text, nullable=True)
@@ -104,7 +104,7 @@ class Obra(Base):
             "episodios": self.episodios,
             "anio": self.anio,
             "tipo": self.tipo,
-            "hianime_id": self.hianime_id,
+            "anime_id": self.anime_id,
             "thumbnail_url": self.thumbnail_url,
             "banner_url": self.banner_url,
             "trailer_url": self.trailer_url,

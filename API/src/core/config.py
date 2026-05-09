@@ -37,11 +37,6 @@ class Settings(BaseSettings):
         validation_alias="CORS_ORIGINS",
     )
 
-    hianime_api_url: str = Field(
-        default="https://hianime-api.vercel.app",
-        validation_alias="HIANIME_API_URL",
-    )
-
     @field_validator("jwt_secret_key")
     @classmethod
     def jwt_secret_not_empty(cls, v: str) -> str:

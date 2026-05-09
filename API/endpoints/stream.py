@@ -1,27 +1,25 @@
 """
-Endpoints de streaming — proxy hacia HiAnime API.
-Centraliza todas las llamadas externas para evitar problemas de CORS/referer
-al consumir el contenido desde el frontend Angular.
+Endpoints de streaming — proxy hacia API de anime (Jikan/MAL).
 """
 from fastapi import APIRouter, HTTPException, Query
-from API.src.services.hianime_service import HianimeService
+from API.src.services.anime_service import AnimeService
 
 router = APIRouter(prefix="/stream", tags=["Streaming"])
-_hianime = HianimeService()
+_anime = AnimeService()
 
 
 @router.get("/home")
 async def home():
     try:
-        return await _hianime.home()
+        return await _anime.home()
     except Exception as e:
-        raise HTTPException(502, detail=f"HiAnime no disponible: {e}")
+        raise HTTPException(502, detail=f"Servicio no disponible: {e}")
 
 
 @router.get("/search")
 async def search(keyword: str = Query(..., min_length=1), page: int = 1):
     try:
-        return await _hianime.search(keyword, page)
+        return await _anime.search(keyword, page)
     except Exception as e:
         raise HTTPException(502, detail=str(e))
 
@@ -29,7 +27,7 @@ async def search(keyword: str = Query(..., min_length=1), page: int = 1):
 @router.get("/suggest")
 async def suggest(keyword: str = Query(..., min_length=1)):
     try:
-        return await _hianime.suggest(keyword)
+        return await _anime.suggest(keyword)
     except Exception as e:
         raise HTTPException(502, detail=str(e))
 
@@ -53,7 +51,7 @@ async def filter_anime(
         "language": language, "genres": genres, "sort": sort, "page": page,
     }.items() if v is not None}
     try:
-        return await _hianime.filter(params)
+        return await _anime.filter(params)
     except Exception as e:
         raise HTTPException(502, detail=str(e))
 
@@ -61,7 +59,7 @@ async def filter_anime(
 @router.get("/info")
 async def info(id: str = Query(...)):
     try:
-        return await _hianime.info(id)
+        return await _anime.info(id)
     except Exception as e:
         raise HTTPException(502, detail=str(e))
 
@@ -69,7 +67,7 @@ async def info(id: str = Query(...)):
 @router.get("/episodes/{anime_id}")
 async def episodes(anime_id: str):
     try:
-        return await _hianime.episodes(anime_id)
+        return await _anime.episodes(anime_id)
     except Exception as e:
         raise HTTPException(502, detail=str(e))
 
@@ -77,19 +75,19 @@ async def episodes(anime_id: str):
 @router.get("/servers/{episode_id}")
 async def servers(episode_id: str):
     try:
-        return await _hianime.servers(episode_id)
+        return await _anime.servers(episode_id)
     except Exception as e:
         raise HTTPException(502, detail=str(e))
 
 
 @router.get("/play")
 async def play(
-    id: str = Query(..., description="Episode ID de HiAnime"),
+    id: str = Query(..., description="Episode ID"),
     server: str = Query(default="hd-1"),
     type: str = Query(default="sub"),
 ):
     try:
-        return await _hianime.stream(id, server, type)
+        return await _anime.stream(id, server, type)
     except Exception as e:
         raise HTTPException(502, detail=str(e))
 
@@ -97,7 +95,7 @@ async def play(
 @router.get("/top")
 async def top_ten():
     try:
-        return await _hianime.top_ten()
+        return await _anime.top_ten()
     except Exception as e:
         raise HTTPException(502, detail=str(e))
 
@@ -105,6 +103,6 @@ async def top_ten():
 @router.get("/category/{name}")
 async def category(name: str, page: int = 1):
     try:
-        return await _hianime.category(name, page)
+        return await _anime.category(name, page)
     except Exception as e:
         raise HTTPException(502, detail=str(e))
