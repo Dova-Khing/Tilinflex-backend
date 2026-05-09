@@ -1,128 +1,109 @@
-"""
-API de Perfil - Endpoints para gestion de perfiles de usuarios.
-Define las rutas HTTP para consultar perfiles por nombre de usuario
-o por ID de usuario en la plataforma.
-"""
-
 from uuid import UUID
 from typing import List
+from pydantic import BaseModel
+from typing import Optional
 
 from API.src.crud.perfil_crud import PerfilCRUD
 from API.database.config import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
 from API.schemas import PerfilResponse
 from sqlalchemy.orm import Session
-from API.src.crud.usuarios_crud import UsuarioCRUD
-from API.schemas import UsuarioResponse
+from API.src.core.auth import get_current_user, CurrentUser
 
 router = APIRouter(prefix="/perfil", tags=["Perfil"])
 
 
+class PerfilCreateRequest(BaseModel):
+    nombre_usuario: str
+    avatar_url: Optional[str] = "av1"
+    idioma: Optional[str] = "es"
+    es_infantil: Optional[bool] = False
+
+
+class PerfilUpdateRequest(BaseModel):
+    nombre_usuario: Optional[str] = None
+    avatar_url: Optional[str] = None
+    idioma: Optional[str] = None
+    es_infantil: Optional[bool] = None
+
+
 @router.get("/", response_model=List[PerfilResponse])
 async def obtener_todos_perfiles(db: Session = Depends(get_db)):
-    """
-    Obtener todos los perfiles registrados en la plataforma.
-
-    Returns:
-        Lista de perfiles.
-
-    Raises:
-        HTTPException 500: Si ocurre un error interno al obtener los perfiles.
-    """
-    try:
-        crud = PerfilCRUD(db=db)
-        return crud.obtener_todos()
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener perfiles: {str(e)}",
-        )
-
-
-@router.get("/{perfil_id}", response_model=PerfilResponse)
-async def obtener_perfil(perfil_id: UUID, db: Session = Depends(get_db)):
-    """
-    Obtener un perfil por su ID.
-
-    Args:
-        perfil_id: Identificador unico del perfil.
-
-    Returns:
-        Perfil correspondiente al ID proporcionado.
-
-    Raises:
-        HTTPException 404: Si no se encuentra el perfil.
-        HTTPException 500: Si ocurre un error interno.
-    """
-    try:
-        crud = PerfilCRUD(db=db)
-        perfil = crud.obtener_perfil_por_id(perfil_id=perfil_id)
-        if not perfil:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="Perfil no encontrado"
-            )
-        return perfil
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener el perfil: {str(e)}",
-        )
+    return PerfilCRUD(db=db).obtener_todos()
 
 
 @router.get("/usuario/{id_usuario}", response_model=List[PerfilResponse])
 async def obtener_perfiles_por_usuario(id_usuario: UUID, db: Session = Depends(get_db)):
-    """
-    Obtener todos los perfiles asociados a un usuario.
-
-    Args:
-        id_usuario: Identificador unico del usuario.
-
-    Returns:
-        Lista de perfiles asociados al usuario.
-
-    Raises:
-        HTTPException 404: Si no se encuentran perfiles para el usuario.
-        HTTPException 500: Si ocurre un error interno.
-    """
-    try:
-        crud = PerfilCRUD(db=db)
-        perfiles = crud.obtener_perfiles_por_usuario(id_usuario=id_usuario)
-        if not perfiles:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="No se encontraron perfiles para este usuario",
-            )
-        return perfiles
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener los perfiles del usuario: {str(e)}",
-        )
+    perfiles = PerfilCRUD(db=db).obtener_perfiles_por_usuario(id_usuario=id_usuario)
+    return perfiles
 
 
-@router.get("/", response_model=List[UsuarioResponse])
-async def obtener_todos_usuarios(db: Session = Depends(get_db)):
-    """
-    Obtener todos los usuarios registrados en el sistema.
+@router.get("/mis-perfiles", response_model=List[PerfilResponse])
+async def mis_perfiles(
+    db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    return PerfilCRUD(db=db).obtener_perfiles_por_usuario(id_usuario=current_user.id_usuario)
 
-    Args:
-        db: Sesion de base de datos.
 
-    Returns:
-        Lista de usuarios registrados.
+@router.post("/", response_model=PerfilResponse, status_code=status.HTTP_201_CREATED)
+async def crear_perfil(
+    datos: PerfilCreateRequest,
+    db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    crud = PerfilCRUD(db=db)
+    if crud.contar_perfiles_usuario(current_user.id_usuario) >= 4:
+        raise HTTPException(status_code=400, detail="Límite de 4 perfiles por usuario alcanzado")
+    perfil = crud.crear_perfil(
+        nombre_usuario=datos.nombre_usuario,
+        id_usuario=current_user.id_usuario,
+        avatar_url=datos.avatar_url or "av1",
+        idioma=datos.idioma or "es",
+        es_infantil=datos.es_infantil or False,
+    )
+    if not perfil:
+        raise HTTPException(status_code=400, detail="Nombre de perfil inválido o usuario no encontrado")
+    return perfil
 
-    Raises:
-        HTTPException 500: Si ocurre un error interno.
-    """
-    try:
-        crud = UsuarioCRUD(db)
-        return crud.obtener_todos_usuarios()
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al obtener usuarios: {str(e)}",
-        )
+
+@router.put("/{perfil_id}", response_model=PerfilResponse)
+async def actualizar_perfil(
+    perfil_id: UUID,
+    datos: PerfilUpdateRequest,
+    db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    crud = PerfilCRUD(db=db)
+    perfil = crud.obtener_perfil_por_id(perfil_id)
+    if not perfil:
+        raise HTTPException(status_code=404, detail="Perfil no encontrado")
+    if perfil.id_usuario != current_user.id_usuario:
+        raise HTTPException(status_code=403, detail="No tienes permiso para editar este perfil")
+    actualizado = crud.actualizar_perfil(perfil_id, datos.dict(exclude_none=True))
+    if not actualizado:
+        raise HTTPException(status_code=400, detail="Datos inválidos")
+    return actualizado
+
+
+@router.delete("/{perfil_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def eliminar_perfil(
+    perfil_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    crud = PerfilCRUD(db=db)
+    perfil = crud.obtener_perfil_por_id(perfil_id)
+    if not perfil:
+        raise HTTPException(status_code=404, detail="Perfil no encontrado")
+    if perfil.id_usuario != current_user.id_usuario:
+        raise HTTPException(status_code=403, detail="No tienes permiso para eliminar este perfil")
+    crud.eliminar_perfil(perfil_id)
+
+
+@router.get("/{perfil_id}", response_model=PerfilResponse)
+async def obtener_perfil(perfil_id: UUID, db: Session = Depends(get_db)):
+    perfil = PerfilCRUD(db=db).obtener_perfil_por_id(perfil_id=perfil_id)
+    if not perfil:
+        raise HTTPException(status_code=404, detail="Perfil no encontrado")
+    return perfil

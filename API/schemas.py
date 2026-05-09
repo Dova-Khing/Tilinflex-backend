@@ -192,47 +192,52 @@ class HistorialReproduccionResponse(HistorialReproduccionBase):
 # OBRAS
 # ------------------------------------
 
-class ObraBase(BaseModel):
+class ObraCreate(BaseModel):
+    mal_id: Optional[int] = None
     nombre: str
+    nombre_japones: Optional[str] = None
     descripcion: Optional[str] = None
+    tipo: Optional[str] = None
     episodios: Optional[int] = None
     anio: Optional[int] = None
-    tipo: Optional[str] = None
-    anime_id: Optional[str] = None
+    temporada: Optional[str] = None
+    estado: Optional[str] = None
+    puntuacion: Optional[float] = None
+    rango: Optional[int] = None
+    duracion: Optional[str] = None
+    estudios: Optional[str] = None
+    generos_externos: Optional[str] = None
     thumbnail_url: Optional[str] = None
     banner_url: Optional[str] = None
     trailer_url: Optional[str] = None
-    estado: Optional[str] = None
-    puntuacion: Optional[float] = None
-
-
-class ObraCreate(ObraBase):
-    id_categoria: UUID
-    id_genero: UUID
+    id_categoria: Optional[UUID] = None
+    id_genero: Optional[UUID] = None
 
 
 class ObraUpdate(BaseModel):
     nombre: Optional[str] = None
+    nombre_japones: Optional[str] = None
     descripcion: Optional[str] = None
+    tipo: Optional[str] = None
     episodios: Optional[int] = None
     anio: Optional[int] = None
-    id_categoria: Optional[UUID] = None
-    id_genero: Optional[UUID] = None
-    tipo: Optional[str] = None
-    anime_id: Optional[str] = None
+    temporada: Optional[str] = None
+    estado: Optional[str] = None
+    puntuacion: Optional[float] = None
+    rango: Optional[int] = None
+    duracion: Optional[str] = None
+    estudios: Optional[str] = None
+    generos_externos: Optional[str] = None
     thumbnail_url: Optional[str] = None
     banner_url: Optional[str] = None
     trailer_url: Optional[str] = None
-    estado: Optional[str] = None
-    puntuacion: Optional[float] = None
+    id_categoria: Optional[UUID] = None
+    id_genero: Optional[UUID] = None
 
 
-class ObraResponse(ObraBase):
+class ObraResponse(ObraCreate):
     id_obra: UUID
-    id_categoria: UUID
-    id_genero: UUID
     fecha_registro: Optional[datetime] = None
-    fecha_actualizacion: Optional[datetime] = None
 
     class Config:
         from_attributes = True

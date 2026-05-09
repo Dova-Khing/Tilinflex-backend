@@ -1,3 +1,4 @@
+import asyncio
 import httpx
 from API.src.core.config import get_settings
 
@@ -31,10 +32,15 @@ def _normalize(a: dict) -> dict:
 class AnimeService:
 
     async def _get(self, path: str, params: dict = None) -> dict:
-        async with httpx.AsyncClient(timeout=15) as client:
-            r = await client.get(f"{JIKAN}{path}", params=params)
-            r.raise_for_status()
-            return r.json()
+        for attempt in range(3):
+            async with httpx.AsyncClient(timeout=15) as client:
+                r = await client.get(f"{JIKAN}{path}", params=params)
+                if r.status_code == 429:
+                    await asyncio.sleep(1.5 * (attempt + 1))
+                    continue
+                r.raise_for_status()
+                return r.json()
+        raise httpx.HTTPStatusError("Rate limit tras 3 intentos", request=r.request, response=r)
 
     async def home(self) -> dict:
         import asyncio
@@ -56,7 +62,7 @@ class AnimeService:
         trending  = [_normalize(a) for a in airing_data[:15]]
         latest    = [_normalize(a) for a in airing_data]
         upcoming_ = [_normalize(a) for a in (upcoming.get("data") or [])]
-        genres    = [g["name"] for g in (genres_r.get("data") or [])]
+        genres = [{"name": g["name"], "id": g["mal_id"]} for g in (genres_r.get("data") or [])]
         return {
             "spotlightAnimes":     spotlight,
             "trendingAnimes":      trending,
@@ -93,11 +99,12 @@ class AnimeService:
         if estado == "complete": jikan_params["status"] = "complete"
         if estado == "upcoming": jikan_params["status"] = "upcoming"
         r = await self._get("/anime", jikan_params)
+        await asyncio.sleep(0.4)
         genres_r = await self._get("/genres/anime")
         return {
             "animes":     [_normalize(a) for a in (r.get("data") or [])],
             "totalPages": (r.get("pagination") or {}).get("last_visible_page") or 1,
-            "genres":     [g["name"] for g in (genres_r.get("data") or [])],
+            "genres":     [{"name": g["name"], "id": g["mal_id"]} for g in (genres_r.get("data") or [])],
         }
 
     async def info(self, anime_id: str) -> dict:
