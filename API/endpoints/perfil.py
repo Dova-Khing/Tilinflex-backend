@@ -29,7 +29,7 @@ class PerfilUpdateRequest(BaseModel):
 
 @router.get("/", response_model=List[PerfilResponse])
 async def obtener_todos_perfiles(db: Session = Depends(get_db)):
-    return PerfilCRUD(db=db).obtener_todos()
+    return PerfilCRUD(db=db).obtener_todos_con_email()
 
 
 @router.get("/usuario/{id_usuario}", response_model=List[PerfilResponse])
