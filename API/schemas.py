@@ -34,6 +34,10 @@ class UsuarioUpdate(BaseModel):
     apellido: Optional[str] = None
     email: Optional[EmailStr] = None
     telefono: Optional[str] = None
+    edad: Optional[int] = None
+    pais: Optional[str] = None
+    admin: Optional[bool] = None
+    activo: Optional[bool] = None
 
 
 class UsuarioResponse(UsuarioBase):
@@ -68,6 +72,7 @@ class PerfilResponse(BaseModel):
     es_infantil: bool = False
     id_usuario: UUID
     fecha_creacion: Optional[datetime] = None
+    email_usuario: Optional[str] = None
 
     class Config:
         from_attributes = True

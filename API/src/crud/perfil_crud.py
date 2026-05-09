@@ -84,6 +84,26 @@ class PerfilCRUD:
     def obtener_todos(self) -> List[Perfil]:
         return self.db.query(Perfil).all()
 
+    def obtener_todos_con_email(self) -> List[dict]:
+        rows = (
+            self.db.query(Perfil, Usuario.email)
+            .join(Usuario, Perfil.id_usuario == Usuario.id_usuario)
+            .all()
+        )
+        result = []
+        for perfil, email in rows:
+            result.append({
+                "id_perfil": perfil.id_perfil,
+                "nombre_usuario": perfil.nombre_usuario,
+                "avatar_url": perfil.avatar_url,
+                "idioma": perfil.idioma,
+                "es_infantil": perfil.es_infantil,
+                "id_usuario": perfil.id_usuario,
+                "fecha_creacion": perfil.fecha_creacion,
+                "email_usuario": email,
+            })
+        return result
+
     def obtener_todos_usuarios(self) -> List[Usuario]:
         """Obtener todos los usuarios"""
         return self.db.query(Usuario).all()
