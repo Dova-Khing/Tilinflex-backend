@@ -60,30 +60,14 @@ class CambioContrasena(BaseModel):
 # PERFIL
 # ------------------------------------
 
-class PerfilBase(BaseModel):
-    avatar_url: Optional[str] = None
-    fecha_nacimiento: Optional[datetime] = None
-    genero: Optional[str] = None
-    intereses: Optional[str] = None
-
-
-class PerfilCreate(PerfilBase):
-    usuario_id: UUID
-
-
-class PerfilUpdate(BaseModel):
-    avatar_url: Optional[str] = None
-    fecha_nacimiento: Optional[datetime] = None
-    genero: Optional[str] = None
-    intereses: Optional[str] = None
-    usuario_id: Optional[UUID] = None
-
-
-class PerfilResponse(PerfilBase):
+class PerfilResponse(BaseModel):
     id_perfil: UUID
-    usuario_id: UUID
-    fecha_registro: Optional[datetime] = None
-    fecha_actualizacion: Optional[datetime] = None
+    nombre_usuario: str
+    avatar_url: Optional[str] = None
+    idioma: str = "es"
+    es_infantil: bool = False
+    id_usuario: UUID
+    fecha_creacion: Optional[datetime] = None
 
     class Config:
         from_attributes = True

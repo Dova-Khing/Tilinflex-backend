@@ -3,7 +3,7 @@ ENTIDAD PERFIL
 MODELO DE DATOS PARA LA ENTIDAD PERFIL
 """
 
-from sqlalchemy import Column, String, DateTime, ForeignKey, Boolean
+from sqlalchemy import Column, String, DateTime, ForeignKey, Boolean, Text
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, Field, validator
 from datetime import datetime
@@ -34,7 +34,7 @@ class Perfil(Base):
 
     nombre_usuario: str = Column(String(100), nullable=False)
 
-    avatar_url: str = Column(String(200), nullable=True, default="av1")
+    avatar_url: str = Column(Text, nullable=True, default="av1")
 
     idioma: str = Column(String(50), nullable=False, default="es")
 
