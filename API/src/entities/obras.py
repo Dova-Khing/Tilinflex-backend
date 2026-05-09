@@ -3,7 +3,7 @@ ENTIDAD OBRA
 MODELO DE DATOS PARA LA ENTIDAD OBRA
 """
 
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Text
+from sqlalchemy import Column, String, Integer, Float, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from pydantic import BaseModel, Field, validator
 from datetime import datetime
@@ -37,12 +37,17 @@ class Obra(Base):
     )
 
     nombre: str = Column(String(150), nullable=False)
-
     descripcion: str = Column(Text, nullable=True)
-
     episodios: int = Column(Integer, nullable=False, default=1)
-
     anio: int = Column(Integer, nullable=False)
+
+    tipo: str = Column(String(20), nullable=True)
+    anime_id: str = Column(String(150), nullable=True)
+    thumbnail_url: str = Column(Text, nullable=True)
+    banner_url: str = Column(Text, nullable=True)
+    trailer_url: str = Column(Text, nullable=True)
+    estado: str = Column(String(30), nullable=True)
+    puntuacion: float = Column(Float, nullable=True)
 
     fecha_registro: datetime = Column(
         DateTime,
@@ -98,9 +103,16 @@ class Obra(Base):
             "descripcion": self.descripcion,
             "episodios": self.episodios,
             "anio": self.anio,
+            "tipo": self.tipo,
+            "anime_id": self.anime_id,
+            "thumbnail_url": self.thumbnail_url,
+            "banner_url": self.banner_url,
+            "trailer_url": self.trailer_url,
+            "estado": self.estado,
+            "puntuacion": self.puntuacion,
             "fecha_registro": self.fecha_registro.isoformat(),
             "id_categoria": str(self.id_categoria),
-            "id_genero": str(self.id_genero)
+            "id_genero": str(self.id_genero),
         }
 
 """

@@ -197,6 +197,13 @@ class ObraBase(BaseModel):
     descripcion: Optional[str] = None
     episodios: Optional[int] = None
     anio: Optional[int] = None
+    tipo: Optional[str] = None
+    anime_id: Optional[str] = None
+    thumbnail_url: Optional[str] = None
+    banner_url: Optional[str] = None
+    trailer_url: Optional[str] = None
+    estado: Optional[str] = None
+    puntuacion: Optional[float] = None
 
 
 class ObraCreate(ObraBase):
@@ -211,6 +218,13 @@ class ObraUpdate(BaseModel):
     anio: Optional[int] = None
     id_categoria: Optional[UUID] = None
     id_genero: Optional[UUID] = None
+    tipo: Optional[str] = None
+    anime_id: Optional[str] = None
+    thumbnail_url: Optional[str] = None
+    banner_url: Optional[str] = None
+    trailer_url: Optional[str] = None
+    estado: Optional[str] = None
+    puntuacion: Optional[float] = None
 
 
 class ObraResponse(ObraBase):
