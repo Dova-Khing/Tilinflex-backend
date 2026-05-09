@@ -18,6 +18,7 @@ from API.schemas import (
     UsuarioUpdate,
 )
 from sqlalchemy.orm import Session
+from API.dependencies import require_admin
 
 router = APIRouter(prefix="/usuarios", tags=["Usuarios"])
 
@@ -207,7 +208,8 @@ async def crear_usuario(usuario_data: UsuarioCreate, db: Session = Depends(get_d
 
 @router.put("/{usuario_id}", response_model=UsuarioResponse)
 async def actualizar_usuario(
-    usuario_id: UUID, usuario_data: UsuarioUpdate, db: Session = Depends(get_db)
+    usuario_id: UUID, usuario_data: UsuarioUpdate, db: Session = Depends(get_db),
+    current_user=Depends(require_admin),
 ):
     """
     Actualizar la informacion de un usuario existente.

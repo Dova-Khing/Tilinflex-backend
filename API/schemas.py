@@ -34,6 +34,10 @@ class UsuarioUpdate(BaseModel):
     apellido: Optional[str] = None
     email: Optional[EmailStr] = None
     telefono: Optional[str] = None
+    edad: Optional[int] = None
+    pais: Optional[str] = None
+    admin: Optional[bool] = None
+    activo: Optional[bool] = None
 
 
 class UsuarioResponse(UsuarioBase):
@@ -60,30 +64,15 @@ class CambioContrasena(BaseModel):
 # PERFIL
 # ------------------------------------
 
-class PerfilBase(BaseModel):
-    avatar_url: Optional[str] = None
-    fecha_nacimiento: Optional[datetime] = None
-    genero: Optional[str] = None
-    intereses: Optional[str] = None
-
-
-class PerfilCreate(PerfilBase):
-    usuario_id: UUID
-
-
-class PerfilUpdate(BaseModel):
-    avatar_url: Optional[str] = None
-    fecha_nacimiento: Optional[datetime] = None
-    genero: Optional[str] = None
-    intereses: Optional[str] = None
-    usuario_id: Optional[UUID] = None
-
-
-class PerfilResponse(PerfilBase):
+class PerfilResponse(BaseModel):
     id_perfil: UUID
-    usuario_id: UUID
-    fecha_registro: Optional[datetime] = None
-    fecha_actualizacion: Optional[datetime] = None
+    nombre_usuario: str
+    avatar_url: Optional[str] = None
+    idioma: str = "es"
+    es_infantil: bool = False
+    id_usuario: UUID
+    fecha_creacion: Optional[datetime] = None
+    email_usuario: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -192,33 +181,52 @@ class HistorialReproduccionResponse(HistorialReproduccionBase):
 # OBRAS
 # ------------------------------------
 
-class ObraBase(BaseModel):
+class ObraCreate(BaseModel):
+    mal_id: Optional[int] = None
     nombre: str
+    nombre_japones: Optional[str] = None
     descripcion: Optional[str] = None
+    tipo: Optional[str] = None
     episodios: Optional[int] = None
     anio: Optional[int] = None
-
-
-class ObraCreate(ObraBase):
-    id_categoria: UUID
-    id_genero: UUID
-
-
-class ObraUpdate(BaseModel):
-    nombre: Optional[str] = None
-    descripcion: Optional[str] = None
-    episodios: Optional[int] = None
-    anio: Optional[int] = None
+    temporada: Optional[str] = None
+    estado: Optional[str] = None
+    puntuacion: Optional[float] = None
+    rango: Optional[int] = None
+    duracion: Optional[str] = None
+    estudios: Optional[str] = None
+    generos_externos: Optional[str] = None
+    thumbnail_url: Optional[str] = None
+    banner_url: Optional[str] = None
+    trailer_url: Optional[str] = None
     id_categoria: Optional[UUID] = None
     id_genero: Optional[UUID] = None
 
 
-class ObraResponse(ObraBase):
+class ObraUpdate(BaseModel):
+    nombre: Optional[str] = None
+    nombre_japones: Optional[str] = None
+    descripcion: Optional[str] = None
+    tipo: Optional[str] = None
+    episodios: Optional[int] = None
+    anio: Optional[int] = None
+    temporada: Optional[str] = None
+    estado: Optional[str] = None
+    puntuacion: Optional[float] = None
+    rango: Optional[int] = None
+    duracion: Optional[str] = None
+    estudios: Optional[str] = None
+    generos_externos: Optional[str] = None
+    thumbnail_url: Optional[str] = None
+    banner_url: Optional[str] = None
+    trailer_url: Optional[str] = None
+    id_categoria: Optional[UUID] = None
+    id_genero: Optional[UUID] = None
+
+
+class ObraResponse(ObraCreate):
     id_obra: UUID
-    id_categoria: UUID
-    id_genero: UUID
     fecha_registro: Optional[datetime] = None
-    fecha_actualizacion: Optional[datetime] = None
 
     class Config:
         from_attributes = True
