@@ -33,7 +33,7 @@ class Settings(BaseSettings):
 
     # Orígenes permitidos separados por coma. Con credenciales no se puede usar "*".
     cors_origins: str = Field(
-        default="http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173",
+        default="http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173,http://localhost:4200",
         validation_alias="CORS_ORIGINS",
     )
 

@@ -76,3 +76,6 @@ var/
 # Windows
 Thumbs.db
 ehthumbs.db
+
+.claude
+.agents
