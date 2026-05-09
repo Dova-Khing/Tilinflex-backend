@@ -38,6 +38,7 @@ from API.endpoints import (
     perfil,
     historial_reproduccion,
     detalle_suscripcion,
+    stream,
 )
 
 
@@ -76,6 +77,7 @@ app.include_router(suscripcion.router)
 app.include_router(perfil.router)
 app.include_router(historial_reproduccion.router)
 app.include_router(detalle_suscripcion.router)
+app.include_router(stream.router)
 
 
 @app.get("/")
