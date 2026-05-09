@@ -34,23 +34,29 @@ class PerfilCRUD:
     # -----------------------------------
 
 
+    MAX_PERFILES = 4
+
     def crear_perfil(
         self,
         nombre_usuario: str,
         id_usuario: UUID,
+        avatar_url: str = "av1",
         idioma: str = "es",
         es_infantil: bool = False,
     ) -> Optional[Perfil]:
-        """Crear un nuevo perfil"""
-
         if not self._validar_nombre_usuario(nombre_usuario):
             return None
 
         if not self._validar_id_usuario(id_usuario):
             return None
 
+        existentes = self.obtener_perfiles_por_usuario(id_usuario)
+        if len(existentes) >= self.MAX_PERFILES:
+            return None
+
         nuevo_perfil = Perfil(
             nombre_usuario=nombre_usuario,
+            avatar_url=avatar_url,
             id_usuario=id_usuario,
             idioma=idioma,
             es_infantil=es_infantil,
@@ -61,6 +67,9 @@ class PerfilCRUD:
         self.db.refresh(nuevo_perfil)
 
         return nuevo_perfil
+
+    def contar_perfiles_usuario(self, id_usuario: UUID) -> int:
+        return len(self.obtener_perfiles_por_usuario(id_usuario))
 
     # -----------------------------------
     # READ
@@ -83,22 +92,27 @@ class PerfilCRUD:
     # UPDATE
     # -----------------------------------
 
-    def actualizar_perfil(self, perfil_id: UUID, nuevo_nombre: str) -> Optional[Perfil]:
-        """Actualizar nombre de perfil"""
-
+    def actualizar_perfil(self, perfil_id: UUID, datos: dict) -> Optional[Perfil]:
         perfil = self.obtener_perfil_por_id(perfil_id)
-
         if not perfil:
             return None
 
-        if not self._validar_nombre_usuario(nuevo_nombre):
-            return None
+        if "nombre_usuario" in datos and datos["nombre_usuario"]:
+            if not self._validar_nombre_usuario(datos["nombre_usuario"]):
+                return None
+            perfil.nombre_usuario = datos["nombre_usuario"]
 
-        perfil.nombre_usuario = nuevo_nombre
+        if "avatar_url" in datos and datos["avatar_url"]:
+            perfil.avatar_url = datos["avatar_url"]
+
+        if "idioma" in datos and datos["idioma"]:
+            perfil.idioma = datos["idioma"]
+
+        if "es_infantil" in datos and datos["es_infantil"] is not None:
+            perfil.es_infantil = datos["es_infantil"]
 
         self.db.commit()
         self.db.refresh(perfil)
-
         return perfil
 
     # -----------------------------------
