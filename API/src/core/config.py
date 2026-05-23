@@ -31,6 +31,17 @@ class Settings(BaseSettings):
         validation_alias="ACCESS_TOKEN_EXPIRE_MINUTES",
     )
 
+    anime1v_url: str = Field(
+        default="http://localhost:3000",
+        description="URL base de anime1v-api para streaming.",
+        validation_alias="ANIME1V_URL",
+    )
+    anime1v_key: str = Field(
+        default="dev-anime1v-key",
+        description="API key de anime1v-api.",
+        validation_alias="ANIME1V_KEY",
+    )
+
     # Orígenes permitidos separados por coma. Con credenciales no se puede usar "*".
     cors_origins: str = Field(
         default="http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173,http://localhost:4200",

@@ -1,6 +1,3 @@
-"""
-Endpoints de streaming — proxy hacia API de anime (Jikan/MAL).
-"""
 from fastapi import APIRouter, HTTPException, Query
 from API.src.services.anime_service import AnimeService
 
@@ -13,7 +10,7 @@ async def home():
     try:
         return await _anime.home()
     except Exception as e:
-        raise HTTPException(502, detail=f"Servicio no disponible: {e}")
+        raise HTTPException(502, detail=str(e))
 
 
 @router.get("/search")
@@ -46,7 +43,7 @@ async def filter_anime(
     page: int = 1,
 ):
     params = {k: v for k, v in {
-        "keyword": keyword, "type": tipo, "status": estado,
+        "keyword": keyword, "tipo": tipo, "estado": estado,
         "rating": rating, "score": score, "season": season,
         "language": language, "genres": genres, "sort": sort, "page": page,
     }.items() if v is not None}
@@ -72,18 +69,18 @@ async def episodes(anime_id: str):
         raise HTTPException(502, detail=str(e))
 
 
-@router.get("/servers/{episode_id}")
-async def servers(episode_id: str):
+@router.get("/servers")
+async def servers(episodeId: str = Query(...)):
     try:
-        return await _anime.servers(episode_id)
+        return await _anime.servers(episodeId)
     except Exception as e:
         raise HTTPException(502, detail=str(e))
 
 
 @router.get("/play")
 async def play(
-    id: str = Query(..., description="Episode ID"),
-    server: str = Query(default="hd-1"),
+    id: str = Query(...),
+    server: str = Query(default=""),
     type: str = Query(default="sub"),
 ):
     try:

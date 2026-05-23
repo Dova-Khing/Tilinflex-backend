@@ -1,8 +1,6 @@
 from sqlalchemy import Column, String, Integer, Float, DateTime, ForeignKey, Text, UniqueConstraint
 from sqlalchemy.orm import relationship
-from pydantic import BaseModel, Field
 from datetime import datetime
-from typing import Optional
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
 
@@ -17,14 +15,11 @@ class Obra(Base):
     )
 
     id_obra: uuid.UUID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-
-    # Identificador MAL/Jikan — nulo para obras manuales
     mal_id: int = Column(Integer, nullable=True)
-
     nombre: str = Column(String(200), nullable=False)
     nombre_japones: str = Column(String(200), nullable=True)
     descripcion: str = Column(Text, nullable=True)
-    tipo: str = Column(String(20), nullable=True)       # TV, Movie, ONA, OVA…
+    tipo: str = Column(String(20), nullable=True)       # TV, Movie, ONA, OVA
     episodios: int = Column(Integer, nullable=True)
     anio: int = Column(Integer, nullable=True)
     temporada: str = Column(String(20), nullable=True)  # spring, summer, fall, winter
@@ -32,15 +27,12 @@ class Obra(Base):
     puntuacion: float = Column(Float, nullable=True)
     rango: int = Column(Integer, nullable=True)
     duracion: str = Column(String(50), nullable=True)
-    estudios: str = Column(String(300), nullable=True)  # comma-separated
-    generos_externos: str = Column(Text, nullable=True) # JSON de géneros Jikan
+    estudios: str = Column(String(300), nullable=True)
+    generos_externos: str = Column(Text, nullable=True)
     thumbnail_url: str = Column(Text, nullable=True)
     banner_url: str = Column(Text, nullable=True)
     trailer_url: str = Column(Text, nullable=True)
-
     fecha_registro: datetime = Column(DateTime, default=datetime.utcnow)
-
-    # FKs internas opcionales (solo para obras cargadas manualmente)
     id_categoria: uuid.UUID = Column(UUID(as_uuid=True), ForeignKey("categorias.id_categoria"), nullable=True)
     id_genero: uuid.UUID = Column(UUID(as_uuid=True), ForeignKey("generos.id_genero"), nullable=True)
 
@@ -75,52 +67,3 @@ class Obra(Base):
             "id_categoria":     str(self.id_categoria) if self.id_categoria else None,
             "id_genero":        str(self.id_genero) if self.id_genero else None,
         }
-
-
-class ObraCreate(BaseModel):
-    mal_id: Optional[int] = None
-    nombre: str = Field(..., min_length=2)
-    nombre_japones: Optional[str] = None
-    descripcion: Optional[str] = None
-    tipo: Optional[str] = None
-    episodios: Optional[int] = Field(None, ge=1)
-    anio: Optional[int] = Field(None, ge=1900)
-    temporada: Optional[str] = None
-    estado: Optional[str] = None
-    puntuacion: Optional[float] = None
-    rango: Optional[int] = None
-    duracion: Optional[str] = None
-    estudios: Optional[str] = None
-    generos_externos: Optional[str] = None
-    thumbnail_url: Optional[str] = None
-    banner_url: Optional[str] = None
-    trailer_url: Optional[str] = None
-    id_categoria: Optional[uuid.UUID] = None
-    id_genero: Optional[uuid.UUID] = None
-
-
-class ObraUpdate(BaseModel):
-    nombre: Optional[str] = None
-    nombre_japones: Optional[str] = None
-    descripcion: Optional[str] = None
-    tipo: Optional[str] = None
-    episodios: Optional[int] = None
-    anio: Optional[int] = None
-    temporada: Optional[str] = None
-    estado: Optional[str] = None
-    puntuacion: Optional[float] = None
-    rango: Optional[int] = None
-    duracion: Optional[str] = None
-    estudios: Optional[str] = None
-    generos_externos: Optional[str] = None
-    thumbnail_url: Optional[str] = None
-    banner_url: Optional[str] = None
-    trailer_url: Optional[str] = None
-
-
-class ObraResponse(ObraCreate):
-    id_obra: uuid.UUID
-    fecha_registro: datetime
-
-    class Config:
-        from_attributes = True

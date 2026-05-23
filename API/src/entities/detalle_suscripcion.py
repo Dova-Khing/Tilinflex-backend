@@ -1,13 +1,6 @@
-"""
-ENTIDAD DETALLE_SUSCRIPCION
-MODELO DE DATOS PARA LA ENTIDAD DETALLE_SUSCRIPCION
-"""
-
 from sqlalchemy import Column, String, DateTime, ForeignKey, Numeric
 from sqlalchemy.orm import relationship
-from pydantic import BaseModel, Field, validator
 from datetime import datetime
-from typing import Optional
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
 
@@ -15,25 +8,12 @@ from API.database.config import Base
 
 
 class DetalleSuscripcion(Base):
-    """
-    Modelo de DetalleSuscripcion que representa la tabla 'detalle_suscripcion'
-    """
-
     __tablename__ = "detalle_suscripcion"
 
-    id_detalle_suscripcion: uuid.UUID = Column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
-
+    id_detalle_suscripcion: uuid.UUID = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     fecha_suscripcion: datetime = Column(DateTime, default=datetime.utcnow)
-
     valor = Column(Numeric(10, 2), nullable=False)
-
     metodo_pago: str = Column(String(50), nullable=False)
-
-    # --------------------
-    # FOREIGN KEY (One-to-One)
-    # --------------------
 
     id_suscripcion: uuid.UUID = Column(
         UUID(as_uuid=True),
@@ -41,10 +21,6 @@ class DetalleSuscripcion(Base):
         nullable=False,
         unique=True,
     )
-
-    # --------------------
-    # RELACION
-    # --------------------
 
     suscripcion = relationship("Suscripcion", back_populates="detalle_suscripcion")
 
@@ -62,44 +38,3 @@ class DetalleSuscripcion(Base):
             "metodo_pago": self.metodo_pago,
             "id_suscripcion": str(self.id_suscripcion),
         }
-
-
-"""
-ESQUEMAS DE PYDANTIC PARA DETALLE_SUSCRIPCION
-"""
-
-
-class DetalleSuscripcionBase(BaseModel):
-
-    valor: float = Field(..., example=29.99, gt=0)
-    metodo_pago: str = Field(..., example="tarjeta_credito")
-    id_suscripcion: uuid.UUID
-
-    @validator("metodo_pago")
-    def validar_metodo_pago(cls, v):
-        metodos_validos = [
-            "tarjeta_credito",
-            "tarjeta_debito",
-            "paypal",
-            "transferencia",
-        ]
-        if v not in metodos_validos:
-            raise ValueError("Método de pago inválido")
-        return v
-
-
-class DetalleSuscripcionCreate(DetalleSuscripcionBase):
-    pass
-
-
-class DetalleSuscripcionUpdate(BaseModel):
-    valor: Optional[float]
-    metodo_pago: Optional[str]
-
-
-class DetalleSuscripcionResponse(DetalleSuscripcionBase):
-    id_detalle_suscripcion: uuid.UUID
-    fecha_suscripcion: datetime
-
-    class Config:
-        from_attributes = True

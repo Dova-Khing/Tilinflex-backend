@@ -7,7 +7,6 @@ from typing import Tuple
 import secrets
 import string
 
-
 # Configuración del contexto de hash
 pwd_context = CryptContext(
     schemes=["bcrypt"],  # puedes cambiar a argon2 si quieres más seguridad
