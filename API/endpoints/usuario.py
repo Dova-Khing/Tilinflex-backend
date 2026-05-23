@@ -52,7 +52,11 @@ async def obtener_usuario_por_email(
 
 
 @router.get("/{usuario_id}/es-admin", response_model=RespuestaAPI)
-async def verificar_es_admin(usuario_id: UUID, db: Session = Depends(get_db)):
+async def verificar_es_admin(
+    usuario_id: UUID,
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(require_admin),
+):
     try:
         es_admin = UsuarioCRUD(db).es_admin(usuario_id)
         return RespuestaAPI(
@@ -65,7 +69,13 @@ async def verificar_es_admin(usuario_id: UUID, db: Session = Depends(get_db)):
 
 
 @router.get("/{usuario_id}", response_model=UsuarioResponse)
-async def obtener_usuario(usuario_id: UUID, db: Session = Depends(get_db)):
+async def obtener_usuario(
+    usuario_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    if current_user.id_usuario != usuario_id and not current_user.admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Sin permiso")
     try:
         usuario = UsuarioCRUD(db).obtener_usuario(usuario_id)
         if not usuario:
@@ -89,7 +99,7 @@ async def crear_usuario(usuario_data: UsuarioCreate, db: Session = Depends(get_d
             telefono=usuario_data.telefono,
             edad=usuario_data.edad,
             pais=usuario_data.pais,
-            admin=usuario_data.admin,
+            admin=False,
         )
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
