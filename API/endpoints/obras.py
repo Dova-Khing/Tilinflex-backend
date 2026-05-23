@@ -27,41 +27,44 @@ def obtener_obra(obra_id: UUID, db: Session = Depends(get_db)):
     return obra
 
 
-@router.post("/importar/{mal_id}", response_model=ObraResponse)
-async def importar_desde_jikan(
-    mal_id: int,
+@router.post("/importar/{anilist_id}", response_model=ObraResponse)
+async def importar_desde_anilist(
+    anilist_id: int,
     db: Session = Depends(get_db),
     current_user=Depends(require_admin),
 ):
-    """Importa un anime de Jikan/MAL a la BD de obras. Si ya existe lo actualiza."""
+    """Importa un anime de AniList a la BD de obras por su AniList ID. Si ya existe lo actualiza."""
     svc = AnimeService()
     try:
-        r = await svc._get(f"/anime/{mal_id}/full")
+        r = await svc.info(str(anilist_id))
     except Exception as e:
-        raise HTTPException(status_code=502, detail=f"Error al consultar Jikan: {e}")
+        raise HTTPException(status_code=502, detail=f"Error al consultar AniList: {e}")
 
-    a = r.get("data") or {}
-    if not a:
-        raise HTTPException(status_code=404, detail="Anime no encontrado en Jikan")
+    anime = (r.get("data") or {}).get("anime") or {}
+    info = anime.get("info") or {}
+    more = anime.get("moreInfo") or {}
+
+    if not info.get("name"):
+        raise HTTPException(status_code=404, detail="Anime no encontrado en AniList")
 
     datos = {
-        "mal_id":           a.get("mal_id"),
-        "nombre":           a.get("title_english") or a.get("title") or "",
-        "nombre_japones":   a.get("title_japanese") or None,
-        "descripcion":      a.get("synopsis") or None,
-        "tipo":             a.get("type") or None,
-        "episodios":        a.get("episodes") or None,
-        "anio":             a.get("year") or None,
-        "temporada":        a.get("season") or None,
-        "estado":           a.get("status") or None,
-        "puntuacion":       a.get("score") or None,
-        "rango":            a.get("rank") or None,
-        "duracion":         a.get("duration") or None,
-        "estudios":         ", ".join(s["name"] for s in (a.get("studios") or [])) or None,
-        "generos_externos": json.dumps([g["name"] for g in (a.get("genres") or [])]),
-        "thumbnail_url":    (a.get("images") or {}).get("jpg", {}).get("large_image_url") or None,
-        "banner_url":       (a.get("images") or {}).get("jpg", {}).get("large_image_url") or None,
-        "trailer_url":      (a.get("trailer") or {}).get("url") or None,
+        "mal_id":           None,
+        "nombre":           info.get("name") or "",
+        "nombre_japones":   more.get("japanese") or None,
+        "descripcion":      info.get("description") or None,
+        "tipo":             (info.get("stats") or {}).get("type") or None,
+        "episodios":        None,
+        "anio":             None,
+        "temporada":        more.get("premiered") or None,
+        "estado":           more.get("status") or None,
+        "puntuacion":       float(info["stats"]["rating"]) if (info.get("stats") or {}).get("rating") else None,
+        "rango":            None,
+        "duracion":         more.get("duration") or None,
+        "estudios":         more.get("studios") or None,
+        "generos_externos": json.dumps(more.get("genres") or []),
+        "thumbnail_url":    info.get("poster") or None,
+        "banner_url":       info.get("poster") or None,
+        "trailer_url":      None,
     }
 
     return ObraCRUD(db).upsert_desde_jikan(datos)
