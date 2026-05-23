@@ -110,7 +110,7 @@ class SuscripcionResponse(SuscripcionBase):
 # ------------------------------------
 
 class DetalleSuscripcionBase(BaseModel):
-    valor: int
+    valor: float
     metodo_pago: str
     fecha_suscripcion: datetime
 

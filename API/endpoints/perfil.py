@@ -1,14 +1,14 @@
 from uuid import UUID
-from typing import List
-from pydantic import BaseModel
-from typing import Optional
+from typing import List, Optional
 
+from pydantic import BaseModel
 from API.src.crud.perfil_crud import PerfilCRUD
 from API.database.config import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
 from API.schemas import PerfilResponse
 from sqlalchemy.orm import Session
 from API.src.core.auth import get_current_user, CurrentUser
+from API.dependencies import require_admin
 
 router = APIRouter(prefix="/perfil", tags=["Perfil"])
 
@@ -28,14 +28,11 @@ class PerfilUpdateRequest(BaseModel):
 
 
 @router.get("/", response_model=List[PerfilResponse])
-async def obtener_todos_perfiles(db: Session = Depends(get_db)):
+async def obtener_todos_perfiles(
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(require_admin),
+):
     return PerfilCRUD(db=db).obtener_todos_con_email()
-
-
-@router.get("/usuario/{id_usuario}", response_model=List[PerfilResponse])
-async def obtener_perfiles_por_usuario(id_usuario: UUID, db: Session = Depends(get_db)):
-    perfiles = PerfilCRUD(db=db).obtener_perfiles_por_usuario(id_usuario=id_usuario)
-    return perfiles
 
 
 @router.get("/mis-perfiles", response_model=List[PerfilResponse])
@@ -46,25 +43,33 @@ async def mis_perfiles(
     return PerfilCRUD(db=db).obtener_perfiles_por_usuario(id_usuario=current_user.id_usuario)
 
 
+@router.get("/usuario/{id_usuario}", response_model=List[PerfilResponse])
+async def obtener_perfiles_por_usuario(
+    id_usuario: UUID,
+    db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    if current_user.id_usuario != id_usuario and not current_user.admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Sin permiso")
+    return PerfilCRUD(db=db).obtener_perfiles_por_usuario(id_usuario=id_usuario)
+
+
 @router.post("/", response_model=PerfilResponse, status_code=status.HTTP_201_CREATED)
 async def crear_perfil(
     datos: PerfilCreateRequest,
     db: Session = Depends(get_db),
     current_user: CurrentUser = Depends(get_current_user),
 ):
-    crud = PerfilCRUD(db=db)
-    if crud.contar_perfiles_usuario(current_user.id_usuario) >= 4:
-        raise HTTPException(status_code=400, detail="Límite de 4 perfiles por usuario alcanzado")
-    perfil = crud.crear_perfil(
-        nombre_usuario=datos.nombre_usuario,
-        id_usuario=current_user.id_usuario,
-        avatar_url=datos.avatar_url or "av1",
-        idioma=datos.idioma or "es",
-        es_infantil=datos.es_infantil or False,
-    )
-    if not perfil:
-        raise HTTPException(status_code=400, detail="Nombre de perfil inválido o usuario no encontrado")
-    return perfil
+    try:
+        return PerfilCRUD(db=db).crear_perfil(
+            nombre_usuario=datos.nombre_usuario,
+            id_usuario=current_user.id_usuario,
+            avatar_url=datos.avatar_url or "av1",
+            idioma=datos.idioma or "es",
+            es_infantil=datos.es_infantil or False,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.put("/{perfil_id}", response_model=PerfilResponse)
@@ -77,13 +82,16 @@ async def actualizar_perfil(
     crud = PerfilCRUD(db=db)
     perfil = crud.obtener_perfil_por_id(perfil_id)
     if not perfil:
-        raise HTTPException(status_code=404, detail="Perfil no encontrado")
-    if perfil.id_usuario != current_user.id_usuario:
-        raise HTTPException(status_code=403, detail="No tienes permiso para editar este perfil")
-    actualizado = crud.actualizar_perfil(perfil_id, datos.dict(exclude_none=True))
-    if not actualizado:
-        raise HTTPException(status_code=400, detail="Datos inválidos")
-    return actualizado
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Perfil no encontrado")
+    if perfil.id_usuario != current_user.id_usuario and not current_user.admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Sin permiso para editar este perfil")
+    try:
+        actualizado = crud.actualizar_perfil(perfil_id, datos.dict(exclude_none=True))
+        if not actualizado:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Datos inválidos")
+        return actualizado
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.delete("/{perfil_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -95,15 +103,21 @@ async def eliminar_perfil(
     crud = PerfilCRUD(db=db)
     perfil = crud.obtener_perfil_por_id(perfil_id)
     if not perfil:
-        raise HTTPException(status_code=404, detail="Perfil no encontrado")
-    if perfil.id_usuario != current_user.id_usuario:
-        raise HTTPException(status_code=403, detail="No tienes permiso para eliminar este perfil")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Perfil no encontrado")
+    if perfil.id_usuario != current_user.id_usuario and not current_user.admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Sin permiso para eliminar este perfil")
     crud.eliminar_perfil(perfil_id)
 
 
 @router.get("/{perfil_id}", response_model=PerfilResponse)
-async def obtener_perfil(perfil_id: UUID, db: Session = Depends(get_db)):
+async def obtener_perfil(
+    perfil_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: CurrentUser = Depends(get_current_user),
+):
     perfil = PerfilCRUD(db=db).obtener_perfil_por_id(perfil_id=perfil_id)
     if not perfil:
-        raise HTTPException(status_code=404, detail="Perfil no encontrado")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Perfil no encontrado")
+    if perfil.id_usuario != current_user.id_usuario and not current_user.admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Sin permiso")
     return perfil
