@@ -21,7 +21,6 @@ class UsuarioBase(BaseModel):
     telefono: Optional[str] = None
     edad: Optional[int] = None
     pais: Optional[str] = None
-    admin: Optional[bool] = False
     activo: Optional[bool] = True
 
 
