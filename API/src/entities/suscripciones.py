@@ -46,7 +46,7 @@ class Suscripcion(Base):
 
     usuario = relationship("Usuario", back_populates="suscripcion")
     detalle_suscripcion = relationship(
-        "DetalleSuscripcion", back_populates="suscripcion"
+        "DetalleSuscripcion", back_populates="suscripcion", cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:
